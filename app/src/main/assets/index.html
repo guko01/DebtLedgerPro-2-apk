@@ -9119,6 +9119,13 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     // here, or it's lost the instant this line runs. See the comment on
     // mergePersistedTransactionEdits() above for the full story.
     mergePersistedTransactionEdits(true);
+    // Fix top-ups that were locked with the wrong split (single-bucket income).
+    // Deferred so every helper and the toast/DOM exist before it runs.
+    (function(){
+      const run = () => { try{ repairSingleBucketTopupSplits(); }catch(err){ console.warn('Single-bucket split repair failed.', err); } };
+      if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(run, 0));
+      else setTimeout(run, 0);
+    })();
     // Now that VAULT_DB's real bank/wallet transactions exist, rebuild
     // Search Expenses from them instead of the raw bankTxns snapshot
     // above — same guesses for anything uncategorized, but any
@@ -18016,6 +18023,69 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       || ((db && db.incBd) || []).find(b => /^exp/i.test(b.name || ''))
       || null;
   }
+  // How much of a top-up becomes SPENDABLE in the account it lands in, as a
+  // % (the rest is locked). This depends on the income's ROUTE, not just on
+  // the Expenses bucket's saved %:
+  //   • Auto-split      → the Expenses bucket's % (50/50 fallback if none set)
+  //   • One bucket only → the full amount goes to that bucket, so it is 100%
+  //                       spendable if that bucket IS Expenses, otherwise 0%
+  //                       (Savings / any other bucket stays locked).
+  // Previously every route used the Expenses bucket's %, so sending the whole
+  // amount to Expenses still left half of it locked.
+  function iaTopupExpPct(db, route){
+    const exp = iaExpensesBucket(db);
+    if(route && route !== 'auto') return (exp && exp.id === route) ? 100 : 0;
+    const p = exp ? Number(exp.pct) : NaN;
+    return (isFinite(p) && p >= 0 && p <= 100) ? p : 50;
+  }
+  // The account an income entry's top-up was credited to.
+  function iaTopupAccountFor(e){
+    const accts = getBankAccounts();
+    if(e && e.topupAcctId){
+      const a = accts.find(x => String(bwAcctId(x)) === String(e.topupAcctId));
+      if(a) return a;
+    }
+    if(!e || !e.mop || e.mop === 'cash') return getCashAccount() || null;
+    return accts.find(x => String(bwAcctId(x)) === String(e.destAcctId)) || null;
+  }
+  // Re-derives an already-posted top-up's locked share after its recorded
+  // spendable % turned out wrong (or its route changed). `appliedAmount` is
+  // the amount the wallet was actually credited with.
+  function iaResyncTopupSplit(e, appliedAmount){
+    if(!e || !e.topupTxnId) return false;
+    const was = Number(e.topupExpPct);
+    if(!isFinite(was)) return false;          // no record of how it was split — leave it alone
+    const db = ensureIncomeAllocationDB();
+    const should = iaTopupExpPct(db, e.route);
+    if(Math.abs(was - should) < 0.005) return false;
+    const acct = iaTopupAccountFor(e);
+    if(!acct) return false;
+    const amt = Number(appliedAmount) || 0;
+    const wasSav    = Math.round(amt * (1 - was/100)    * 100) / 100;
+    const shouldSav = Math.round(amt * (1 - should/100) * 100) / 100;
+    const bal = normalizeAmount(acct.amount);
+    acct.savings = Math.max(0, Math.min(bal, bwSavings(acct) + (shouldSav - wasSav)));
+    e.topupExpPct = should;
+    syncBankAccountToRealDb(acct);
+    return true;
+  }
+  // One-time repair for top-ups saved with the old behaviour: any income sent
+  // to a SINGLE bucket was locked using the Expenses bucket's auto-split %
+  // (e.g. only 50% spendable for an all-Expenses income).
+  function repairSingleBucketTopupSplits(){
+    const db = ensureIncomeAllocationDB();
+    let fixed = 0;
+    (db.incEntries || []).forEach(e => {
+      if(!e || !e.route || e.route === 'auto') return;
+      if(iaResyncTopupSplit(e, e.amount)) fixed++;
+    });
+    if(fixed){
+      persistIncomeAllocation();
+      persistTransactions();
+      try{ showAppStatusToast('Income splits corrected', { detail: fixed + ' single-bucket top-up' + (fixed>1?'s':'') + ' now use the full amount for their bucket', kind:'success' }); }catch(err){}
+    }
+    return fixed;
+  }
   function persistIncomeAllocation(){
     if(REAL_DB){
       try{ localStorage.setItem(DLP_DB_KEY, JSON.stringify(REAL_DB)); }
@@ -18762,7 +18832,14 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       if(existing.route==='auto'){ (db.incBd||[]).forEach(b => { db.incBuckets[b.id] = Math.max(0, (db.incBuckets[b.id]||0) - existing.amount*(b.pct/100)); }); }
       else{ db.incBuckets[existing.route] = Math.max(0, (db.incBuckets[existing.route]||0) - existing.amount); }
       // Update in place so the saved method, account and top-up link survive the edit.
+      const prevRoute = existing.route, prevAmount = existing.amount;
       entry = Object.assign(existing, { desc, amount, date, cat, route:_iaRoute, notes });
+      // Changing the route changes how much of the (already posted) top-up is
+      // spendable, so bring the wallet's locked share in line with it.
+      if(prevRoute !== _iaRoute){
+        entry.splitBd = (db.incBd||[]).map(b => ({ id:b.id, name:b.name, pct:b.pct, color:b.color }));
+        try{ iaResyncTopupSplit(entry, prevAmount); }catch(err){ console.warn('Could not re-split top-up.', err); }
+      }
     } else {
       // Snapshot the bucket split as it stands right now — the same moment
       // creditBwAccount() below will lock in this account's actual
@@ -18772,9 +18849,10 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       // this, the breakdown row under this transaction could show a
       // different split than what actually got applied to the balance.
       const splitBd = (db.incBd||[]).map(b => ({ id:b.id, name:b.name, pct:b.pct, color:b.color }));
-      const expBucketNow = splitBd.find(b => b.id === (iaExpensesBucket(db)||{}).id);
-      const expPctNow = expBucketNow ? Number(expBucketNow.pct) : NaN;
-      entryExpPct = (isFinite(expPctNow) && expPctNow >= 0 && expPctNow <= 100) ? expPctNow : 50;
+      // Route-aware: "Send to one bucket → Expenses" is 100% spendable, a
+      // single non-Expenses bucket is 0% spendable, auto-split uses the
+      // Expenses bucket's %.
+      entryExpPct = iaTopupExpPct(db, _iaRoute);
       entry = { id:'ie' + Date.now(), desc, amount, date, time: nowTimeHHMM(), cat, mop, destAcctId, route:_iaRoute, notes, splitBd };
       db.incEntries.push(entry);
     }
