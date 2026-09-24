@@ -5640,6 +5640,95 @@ body.light .ia-bucket-row select{ color:var(--bone); }
   #amortModal .amort-modal{ overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
 }
 </style>
+<style id="amort-mobile-fullscreen">
+/* Phones only (desktop untouched): the amortization schedule fills the whole screen,
+   and the panel-border drag / debts-sheet grip are gone. */
+@media (max-width:700px){
+  #amortModal{ padding:0 !important; background:var(--panel, #141c2e) !important; backdrop-filter:none !important; justify-content:stretch !important; align-items:stretch !important; }
+  #amortModal .amort-modal{
+    position:relative; width:100% !important; max-width:none !important;
+    height:100% !important; max-height:none !important; margin:0 !important;
+    border:none !important; border-radius:0 !important; box-shadow:none !important;
+    padding:calc(14px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px)) !important;
+    transform:translateY(0) !important; transition:none !important;
+  }
+  #amortModal .amort-resize-handle{ display:none !important; pointer-events:none !important; }
+  .amort-debts-grip{ display:none !important; }
+
+  /* Header: top row = Close | title | Debts pill; second row = Add debt | Edit | Delete.
+     Add debt and Edit share the same width (2 of 4 equal columns each). */
+  #amortModal .transaction-modal-head{
+    display:grid !important; grid-template-columns:repeat(4, minmax(0,1fr)) 44px; column-gap:8px; row-gap:12px;
+    align-items:center; padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid rgba(160,184,211,.22);
+  }
+  #amortModal .amort-head-actions{ display:contents !important; }
+  #amortModal #amortModalClose{
+    grid-row:1; grid-column:1; justify-self:start; order:0 !important;
+    width:44px; height:44px; min-width:44px; padding:0; margin:0; border-radius:50%; font-size:22px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #amortModal .transaction-modal-title{ grid-row:1; grid-column:2 / 4; font-size:14px !important; line-height:1.25; min-width:0; flex:none !important; }
+  #amortModal .amort-debts-btn{ grid-row:1; grid-column:4 / 6; justify-self:end; order:0 !important; flex:none !important; height:44px; margin:0; padding:0 14px; border-radius:22px; }
+  #amortModal #amortAddDebtBtn, #amortModal #amortEditDebtBtn, #amortModal #amortDeleteDebtBtn{
+    grid-row:2; height:44px; min-width:0 !important; width:100%; margin:0 !important; padding:0 !important; order:0 !important; flex:none !important;
+    border-radius:10px; font-size:0 !important; display:flex; align-items:center; justify-content:center; box-shadow:none;
+  }
+  #amortModal #amortAddDebtBtn::before, #amortModal #amortEditDebtBtn::before, #amortModal #amortDeleteDebtBtn::before{ display:none; }
+  #amortModal #amortAddDebtBtn::after, #amortModal #amortEditDebtBtn::after, #amortModal #amortDeleteDebtBtn::after{
+    font:700 14px Arial,sans-serif; position:relative;
+  }
+  #amortModal #amortAddDebtBtn{ grid-column:1 / 3; background:#d6a741 !important; border-color:#d6a741 !important; color:#1a1408 !important; }
+  #amortModal #amortAddDebtBtn::after{ content:"\FF0B  Add debt"; }
+  #amortModal #amortEditDebtBtn{ grid-column:3 / 5; }
+  #amortModal #amortEditDebtBtn::after{ content:"\270E  Edit"; }
+  #amortModal #amortDeleteDebtBtn{ grid-column:5; }
+  #amortModal #amortDeleteDebtBtn::after{ content:"\1F5D1"; font-size:18px; }
+}
+</style>
+<style id="fund-history-mobile">
+.ia-action-month, .ia-hist-chips, .ia-hist-headclose{ display:none; }
+@media (max-width:700px){
+  #fundHistoryModal{ padding:8px !important; }
+  #fundHistoryModal .transaction-modal{
+    width:100% !important; max-width:none !important; max-height:calc(100dvh - 16px) !important; padding:0 !important;
+    display:flex; flex-direction:column; overflow:hidden; border-radius:16px;
+  }
+  #fundHistoryModal .transaction-modal-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 14px 10px !important; margin:0; flex:0 0 auto; }
+  #fundHistoryModal .transaction-modal-title{ font-size:17px; margin:0; }
+  #fundHistoryModal .ia-hist-headclose{
+    display:flex; align-items:center; justify-content:center; width:36px; height:36px; padding:0; margin:0; border-radius:50%;
+    background:var(--panel); border:var(--border-w) solid var(--line-soft); color:var(--bone); font-size:20px; line-height:1; cursor:pointer;
+  }
+  #fundHistoryModal .ia-hist-chips{ display:flex; gap:8px; padding:0 14px 10px; flex:0 0 auto; }
+  #fundHistoryModal .ia-hist-chip{
+    height:32px; padding:0 12px; border-radius:16px; border:1px solid var(--line-soft); background:transparent;
+    color:var(--bone-dim); font:600 13px Arial,sans-serif; cursor:pointer; margin:0;
+  }
+  #fundHistoryModal .ia-hist-chip.on{ background:var(--brass); border-color:var(--brass); color:var(--ink,#1a1408); }
+  #fundHistoryModal .transaction-form{ padding:0 !important; flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+  #fundHistoryModal .ia-action-list{ max-height:none; overflow:visible; gap:0; }
+  #fundHistoryModal .ia-action-month{
+    display:flex; justify-content:space-between; padding:12px 14px 6px; font:700 11px Arial,sans-serif;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--bone-dim);
+  }
+  #fundHistoryModal .ia-action-row{ align-items:flex-start; gap:12px; padding:11px 14px; border-bottom:none; border-top:var(--border-w) solid var(--line-soft); }
+  #fundHistoryModal .ia-action-icon{ width:36px; height:36px; border-radius:50%; font-size:17px; }
+  #fundHistoryModal .ia-action-icon.withdraw{ background:rgba(193,88,80,.18); }
+  #fundHistoryModal .ia-action-icon.transfer{ background:rgba(95,140,200,.16); color:#8fb4e0; }
+  #fundHistoryModal .ia-action-title{ font-size:14px; white-space:normal; overflow:visible; line-height:1.3; }
+  #fundHistoryModal .ia-action-sub{ font-size:12px; white-space:normal; overflow:visible; line-height:1.35; }
+  #fundHistoryModal .ia-action-money{ font-size:14px; white-space:nowrap; }
+  #fundHistoryModal .ia-action-money.wd{ color:var(--rust); }
+  #fundHistoryModal .ia-action-money.wd::before{ content:"\2212"; }
+  #fundHistoryModal .ia-action-date{ font-size:11px; }
+  #fundHistoryModal .ia-yr{ display:none; }
+  #fundHistoryModal .transaction-modal-actions{
+    flex:0 0 auto; padding:12px 14px calc(14px + env(safe-area-inset-bottom,0px)) !important; border-top:var(--border-w) solid var(--line-soft);
+  }
+  #fundHistoryModal #fundHistoryDone{ width:100% !important; min-width:0 !important; height:48px; padding:0 !important; border-radius:12px; font-size:15px; }
+  #fundHistoryModal .modal-close-outside{ display:none !important; }
+}
+</style>
 <style id="bank-wallet-redesign">
 .bwx{ --bwx-green:#5fd08a; }
 body.light .bwx{ --bwx-green:#1c8a4e; }
@@ -5762,6 +5851,64 @@ body:not(.light) .bwx-total.spend{ color:#FFC48A; }
   .bwx-stat{ border:1px solid var(--line); border-left-width:5px; border-radius:12px; padding:12px 14px; background:var(--panel); box-shadow:0 1px 3px rgba(0,0,0,.08); }
   .bwx-stat:first-child{ border-left-color:var(--brass); }
   .bwx-stat:nth-child(3){ border-left-color:#E8743B; }
+}
+</style>
+<style id="hdr-profile-controls">
+/* HEADER v2 (phones): big profile picture on the banner edge, logo at the right of the title,
+   one roomy control row. Desktop keeps the old look. Delete this block (and the #hdrAvatar element) to undo. */
+.hdr-avatar{ display:none; }
+.ds-date, .ds-status{ display:block; }
+.ds-lab{ display:inline; }
+@media (max-width:700px){
+  .profile-fab{ display:none !important; }
+  #dashHeader .brand-logo{ align-items:flex-start; gap:12px; }
+  .hdr-avatar{
+    display:block; position:relative; flex:none; width:88px; height:88px; margin:-44px 0 0 0; padding:3px;
+    border-radius:50%; cursor:pointer; z-index:2; -webkit-tap-highlight-color:transparent;
+    background:conic-gradient(from 200deg,#E8C56C,#9A7428,#E8C56C); box-shadow:0 10px 22px -8px rgba(0,0,0,.7);
+  }
+  .hdr-avatar:focus-visible{ outline:2px solid var(--brass); outline-offset:3px; }
+  .hdr-avatar-pic{
+    width:100%; height:100%; border-radius:50%; overflow:hidden; border:3px solid rgb(var(--hs-card));
+    background:linear-gradient(145deg,#4a3a22,#1a1410); display:grid; place-items:center;
+    font-size:36px; font-weight:700; color:#F1D89A;
+  }
+  .hdr-avatar-pic img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .hdr-avatar-pic svg{ width:44px; height:44px; }
+  .hdr-avatar-cam{
+    position:absolute; right:-2px; bottom:2px; width:28px; height:28px; border-radius:50%;
+    background:var(--brass); color:#fff; border:3px solid rgb(var(--hs-card)); display:grid; place-items:center;
+  }
+  #dashHeader .hdr-avatar-cam{ color:#fff; }
+  .hdr-avatar-cam svg{ width:13px; height:13px; stroke:#fff; }
+  #dashHeader .brand-text{ flex:1 1 auto; min-width:0; padding-top:8px; }
+  #dashHeader .brand-mark{ order:3; width:44px; height:44px; margin-top:8px; }
+  #dashHeader .brand-name{ font-size:18px; }
+
+  /* status becomes a chip beside the date */
+  #dashHeader .date-stamp{ margin:12px 0 0; padding:12px; border-radius:20px; font-size:11px; }
+  .ds-meta{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+  .ds-date, .ds-status{ display:inline; }
+  .ds-lab{ display:none; }
+  .ds-status b{
+    display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:99px;
+    border:1px solid rgba(214,167,65,.45); background:rgba(214,167,65,.10);
+    font-weight:700; font-size:10.5px; white-space:nowrap;
+  }
+  .ds-status b::before{ content:""; width:7px; height:7px; border-radius:50%; background:#3FCB6B; flex:none; }
+
+  /* one control row: currency stretches, the rest are equal 48px targets */
+  .toggle-row{ margin-top:12px; gap:8px; justify-content:stretch; align-items:center; }
+  .cur-toggle{ flex:1 1 auto; height:48px; padding:4px; gap:4px; }
+  .cur-toggle button{ flex:1; height:100%; font-size:13.5px; padding:0 8px; }
+  .theme-toggle{ flex:none; width:84px; height:48px; padding:4px; margin-left:0; }
+  .theme-toggle-thumb{ width:38px; height:38px; }
+  .theme-toggle-thumb svg{ width:18px; height:18px; }
+  body.light .theme-toggle-thumb{ transform:translateX(36px); }
+  .theme-icons{ padding:0 12px; }
+  .theme-icons svg{ width:14px; height:14px; }
+  .hdr-lock-btn, .user-logout{ flex:none; width:48px; height:48px; }
+  .hdr-lock-btn svg, .user-logout svg{ width:20px; height:20px; }
 }
 </style>
 </head>
@@ -7299,6 +7446,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     <div class="hdr-scene" aria-hidden="true"><div class="hdr-banner"></div></div>
     <div class="header-left">
     <div class="brand brand-logo">
+      <div class="hdr-avatar" id="hdrAvatar" role="button" tabindex="0" title="Profile &amp; settings" aria-label="Open profile and settings"><div class="hdr-avatar-pic" id="hdrAvatarPic"></div><span class="hdr-avatar-cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span></div>
       <svg class="brand-mark" width="46" height="46" viewBox="0 0 160 160" role="img" aria-label="DebtLedger Pro logo"><clipPath id="brandCoin"><circle cx="80" cy="80" r="54"/></clipPath><rect width="160" height="160" rx="36" fill="#0E1420" stroke="#D6A741" stroke-opacity=".55" stroke-width="3"/><circle cx="80" cy="80" r="54" fill="#D6A741"/><g clip-path="url(#brandCoin)"><path d="M20 46 H52 V66 H76 V86 H100 V106 H140 V20 H20 Z" fill="#4CC38A"/><path d="M20 46 H52 V66 H76 V86 H100 V106 H140" fill="none" stroke="#0E1420" stroke-width="4" stroke-linejoin="round"/></g><circle cx="80" cy="80" r="54" fill="none" stroke="#0E1420" stroke-opacity=".35" stroke-width="2"/><g fill="none" stroke="#0E1420" stroke-linecap="round" stroke-linejoin="round"><path d="M104 53 C104 46 92 46 92 54 C92 62 104 59 104 67 C104 74 92 74 92 66" stroke-width="3.2"/><path d="M98 43 V77" stroke-width="2.4"/><path d="M52 90 V116" stroke-width="3.4"/><path d="M52 90 H61 A8 8 0 0 1 61 106 H52" stroke-width="3.4"/><path d="M46 97 H71 M46 102 H71" stroke-width="2"/></g></svg>
       <div class="brand-text">
         <div class="brand-name">DebtLedger<span class="brand-pro">Pro</span></div>
@@ -7315,8 +7463,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     </section>
     </div>
     <div class="date-stamp">
-      <span id="liveDateStamp">Tuesday, Sept 16 2026</span> · Asia/Manila<br>
-      Status: <b id="dlaStatusLine" title="Tap to sync your subscription" style="cursor:pointer" onclick="DLAuth.sync()">Checking license…</b>
+      <div class="ds-meta"><span class="ds-date"><span id="liveDateStamp">Tuesday, Sept 16 2026</span> · Asia/Manila</span><span class="ds-status"><span class="ds-lab">Status:</span> <b id="dlaStatusLine" title="Tap to sync your subscription" style="cursor:pointer" onclick="DLAuth.sync()">Checking license…</b></span></div>
       <div class="toggle-row">
         <div class="cur-toggle">
           <button class="active" data-cur="PHP">₱ PHP</button>
@@ -7838,6 +7985,8 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
   function dlpUniqNames(list){
     const seen = {}, out = [];
     list.forEach(n => { n = dlpCatName(n); const k = n.toLowerCase(); if(n && !seen[k]){ seen[k] = 1; out.push(n); } });
+    // Every category list (expense, income, debt — dropdowns, Manage Categories, budget limits) is A–Z
+    out.sort((x, y) => x.localeCompare(y, undefined, { sensitivity:'base', numeric:true }));
     return out;
   }
   function dlpTxnCats(db, type){
@@ -8196,7 +8345,8 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     if(Array.isArray(matchKeys)) catChipMatchKeys = matchKeys;
     const row = document.getElementById('catChipRow');
     if(!row) return;
-    const keys = catChipMatchKeys.filter(k => EXPENSE_CATEGORIES[k]);
+    const keys = catChipMatchKeys.filter(k => EXPENSE_CATEGORIES[k])
+      .sort((x, y) => String(EXPENSE_CATEGORIES[x].label).localeCompare(String(EXPENSE_CATEGORIES[y].label), undefined, { sensitivity:'base', numeric:true }));
     row.innerHTML = keys.map(key => {
       const meta = EXPENSE_CATEGORIES[key];
       return `<button type="button" class="cat-chip${key === activeExpenseCategory ? ' active' : ''}" data-cat="${key}"><span class="cci">${meta.icon}</span>${escapeExpenseHtml(meta.label)}</button>`;
@@ -11411,7 +11561,34 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     localStorage.removeItem(AVATAR_KEY);
     _applyAvatar(null);
   };
+  // Header profile picture (phones): shows the uploaded photo, else the first letter of the signed-in name.
+  let _hdrSrc = null;
+  const _personSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/></svg>';
+  function _applyHdrAvatar(src){
+    _hdrSrc = src || null;
+    const pic = document.getElementById('hdrAvatarPic');
+    if(!pic) return;
+    if(src){
+      pic.innerHTML = '<img src="' + src + '" alt="Profile picture">';
+    } else {
+      const w = document.getElementById('whoName');
+      const c = ((w && w.textContent) || '').trim().charAt(0).toUpperCase();
+      if(c){ pic.textContent = c; } else { pic.innerHTML = _personSvg; }
+    }
+  }
+  ['whoName','whoName2'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && window.MutationObserver) new MutationObserver(() => { if(!_hdrSrc) _applyHdrAvatar(null); }).observe(el, { childList:true, characterData:true, subtree:true });
+  });
+  const hdrAvatar = document.getElementById('hdrAvatar');
+  if(hdrAvatar){
+    hdrAvatar.addEventListener('click', openSettingsModal);
+    hdrAvatar.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openSettingsModal(); }
+    });
+  }
   function _applyAvatar(src){
+    _applyHdrAvatar(src);
     const preview = document.getElementById('settings-avatar-preview');
     if(preview){
       preview.innerHTML = src
@@ -17772,7 +17949,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     const ibSaveBtn = document.getElementById('ibSaveBtn');
     if(ibSaveBtn) ibSaveBtn.addEventListener('click', saveIncomeBuckets);
 
-    ['fundHistoryClose','fundHistoryDone'].forEach(id => {
+    ['fundHistoryClose','fundHistoryDone','fundHistoryHeadClose'].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.addEventListener('click', closeFundHistoryModal);
     });
@@ -18912,26 +19089,57 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
   /* ── Fund Action History ── */
   function buildIncomeActionRows(db){
     const actions = [...(db.incActions||[])].sort((a,b) => String(b.date||'').localeCompare(String(a.date||'')));
-    return actions.length ? actions.slice(0,25).map(a => {
-      const bName = id => (db.incBd||[]).find(b=>b.id===id)?.name || id;
+    const shown = actions.slice(0,25);
+    if(!shown.length) return `<div class="ia-empty">No fund actions yet.</div>`;
+    const bName = id => (db.incBd||[]).find(b=>b.id===id)?.name || id;
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const monthKey = a => { const m = /^(\d{4})-(\d{2})/.exec(String(a.date||'')); return m ? m[1]+'-'+m[2] : 'none'; };
+    const monthLabel = k => { const m = /^(\d{4})-(\d{2})$/.exec(k); return m ? MONTHS[Number(m[2])-1] + ' ' + m[1] : 'Undated'; };
+    const counts = {};
+    shown.forEach(a => { const k = monthKey(a); counts[k] = (counts[k]||0) + 1; });
+    let html = '', last = null;
+    shown.forEach(a => {
+      const k = monthKey(a);
+      if(k !== last){
+        html += `<div class="ia-action-month"><span>${monthLabel(k)}</span><span>${counts[k]} action${counts[k]===1?'':'s'}</span></div>`;
+        last = k;
+      }
       const isTransfer = a.type==='transfer';
-      return `<div class="ia-action-row">
+      const dateHtml = iaDate(a.date).replace(/,\s*(\d{4})$/, '<span class="ia-yr">, $1</span>');
+      html += `<div class="ia-action-row" data-k="${isTransfer?'tf':'wd'}">
         <div class="ia-action-icon ${isTransfer?'transfer':'withdraw'}">${isTransfer?'⇄':'↓'}</div>
         <div class="ia-action-body">
           <div class="ia-action-title">${isTransfer ? `${bName(a.from)} → ${bName(a.to)}` : `Withdraw — ${bName(a.from)}`}</div>
           <div class="ia-action-sub">${a.notes || (isTransfer ? 'Moved funds between buckets' : 'Withdrawn from bucket')}</div>
         </div>
         <div class="ia-action-amt">
-          <div class="ia-action-money">${formatMoneyValue(Number(a.amount)||0, true)}</div>
-          <div class="ia-action-date">${iaDate(a.date)}</div>
+          <div class="ia-action-money${isTransfer?'':' wd'}">${formatMoneyValue(Number(a.amount)||0, true)}</div>
+          <div class="ia-action-date">${dateHtml}</div>
         </div>
       </div>`;
-    }).join('') : `<div class="ia-empty">No fund actions yet.</div>`;
+    });
+    return html;
+  }
+  function filterFundHistory(kind){
+    const list = document.getElementById('fundHistoryList');
+    if(!list) return;
+    document.querySelectorAll('#fundHistoryChips .ia-hist-chip').forEach(c => c.classList.toggle('on', c.dataset.f === kind));
+    list.querySelectorAll('.ia-action-row').forEach(r => { r.style.display = (kind === 'all' || r.dataset.k === kind) ? '' : 'none'; });
+    list.querySelectorAll('.ia-action-month').forEach(m => {
+      let n = m.nextElementSibling, any = false;
+      while(n && n.classList.contains('ia-action-row')){ if(n.style.display !== 'none') any = true; n = n.nextElementSibling; }
+      m.style.display = any ? '' : 'none';
+    });
   }
   function openFundHistoryModal(){
     const db = ensureIncomeAllocationDB();
     const list = document.getElementById('fundHistoryList');
     if(list) list.innerHTML = buildIncomeActionRows(db);
+    const chips = document.getElementById('fundHistoryChips');
+    if(chips){
+      chips.onclick = e => { const c = e.target.closest('.ia-hist-chip'); if(c) filterFundHistory(c.dataset.f); };
+      filterFundHistory('all');
+    }
     const modal = document.getElementById('fundHistoryModal');
     modal.classList.add('show');
     modal.setAttribute('aria-hidden','false');
@@ -21027,6 +21235,12 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
   <div class="transaction-modal" role="dialog" aria-modal="true" style="width:min(640px,96vw)">
     <div class="transaction-modal-head">
       <div class="transaction-modal-title">Fund Action History</div>
+      <button type="button" class="ia-hist-headclose" id="fundHistoryHeadClose" aria-label="Close">×</button>
+    </div>
+    <div class="ia-hist-chips" id="fundHistoryChips">
+      <button type="button" class="ia-hist-chip on" data-f="all">All</button>
+      <button type="button" class="ia-hist-chip" data-f="wd">Withdrawals</button>
+      <button type="button" class="ia-hist-chip" data-f="tf">Transfers</button>
     </div>
     <div class="transaction-form" style="padding:4px 20px 8px">
       <div class="ia-action-list" id="fundHistoryList"></div>
@@ -21979,6 +22193,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       const handle = document.getElementById('amortResizeHandle');
       const panel = amortModal ? amortModal.querySelector('.amort-modal') : null;
       if(!handle || !panel) return;
+      const isPhone = () => window.matchMedia('(max-width:700px)').matches;
       const MIN_W = 360;
       const maxW = () => Math.round(window.innerWidth * 0.96);
       // Widening the panel should also give the debt-name column (fixed
@@ -21994,10 +22209,11 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
         panel.style.setProperty('--amort-switcher-w', Math.round(sw) + 'px');
       }
       const saved = parseInt(localStorage.getItem('amortPanelWidth') || '', 10);
-      if(saved && saved >= MIN_W) applyWidth(Math.min(saved, maxW()));
+      if(saved && saved >= MIN_W && !isPhone()) applyWidth(Math.min(saved, maxW()));
       let dragging = false, startX = 0, startW = 0, startSwitcherW = 0;
       const switcherEl = document.getElementById('amortDebtSwitcher');
       handle.addEventListener('pointerdown', function(e){
+        if(isPhone()) return;   // no border-drag on phones — schedule is full screen
         dragging = true;
         startX = e.clientX;
         startW = panel.getBoundingClientRect().width;
@@ -22831,22 +23047,37 @@ document.getElementById('hdrLockBtn').addEventListener('click', function(){
 </script>
 
 <script id="back-button-js">
-/* ── Phone Back key / gesture closes the top-most modal, sheet or page ──
-   Every time a layer opens (modal, bottom sheet, confirm dialog, settings, or a full
-   page shown in the results area) one history entry is pushed. Pressing Back pops it and
-   closes the top layer instead of leaving the app. Closing a layer with its own X / Save /
-   Cancel button pops the matching history entry, so the two never drift apart. When
-   nothing is open, Back behaves normally. */
+/* ── Phone Back key / gesture ──
+   1. Back closes the top-most window first (modal, bottom sheet, confirm dialog, Settings, or a
+      page shown in the results area) — one press per window, newest first.
+   2. When only the dashboard is left, Back presses the Lock button instead of leaving the app.
+   3. While the app is locked (or the login screen is showing) Back does nothing.
+   The app is never closed by Back on phones — use the Home button.
+   Every window that opens pushes one history entry; closing it with its own X / Save / Cancel pops
+   the matching entry, so the two never drift apart. A permanent "base" entry sits under all of them
+   so Back always has somewhere to land (also keeps the Android WebView's canGoBack() true). */
 (function(){
   var OVERLAY_SEL = '[aria-hidden].show, [aria-hidden].open, .app-confirm-overlay.show';
   var stack = [];          // open layers in the order they opened (DOM nodes, or 'PAGE')
-  var skipPops = 0;        // popstate events caused by our own history.back()
+  var skipPops = 0;        // popstate events caused by our own history.go()
   var raf = 0;
 
   function visible(el){
     if(!el || !el.isConnected) return false;
     var cs = getComputedStyle(el);
     return cs.display !== 'none' && cs.visibility !== 'hidden';
+  }
+  function isPhone(){
+    try{ return window.matchMedia('(max-width:700px)').matches || window.matchMedia('(pointer:coarse)').matches; }
+    catch(e){ return window.innerWidth <= 700; }
+  }
+  function isLocked(){
+    var l = document.getElementById('pinLock');
+    return !!(l && l.classList.contains('show'));
+  }
+  function loginShowing(){
+    var a = document.getElementById('dlAuthHost');
+    return !!(a && !a.hidden && visible(a));
   }
   function vaultResults(){ return document.getElementById('vaultResults'); }
   function pageOpen(){
@@ -22855,15 +23086,18 @@ document.getElementById('hdrLockBtn').addEventListener('click', function(){
   }
   function openOverlays(){
     return Array.prototype.filter.call(document.querySelectorAll(OVERLAY_SEL), function(el){
+      // the PIN lock screen and the login host are not "windows" Back may close
+      if(el.id === 'pinLock' || el.id === 'dlAuthHost' || el.closest('#dlAuthHost')) return false;
       return !el.classList.contains('as-page') && visible(el);
     });
   }
 
-  function push(){ try{ history.pushState({ dlpLayer:true }, ''); }catch(e){} }
+  function push(kind){ try{ history.pushState(kind === 'base' ? { dlpBase:true } : { dlpLayer:true }, ''); }catch(e){} }
   function pop(n){ if(n > 0){ skipPops++; try{ history.go(-n); }catch(e){ skipPops--; } } }
 
   function sync(){
     raf = 0;
+    if(isLocked()) return;                    // nothing behind the lock screen counts
     var current = openOverlays();
     if(pageOpen()) current.unshift('PAGE');
 
@@ -22878,7 +23112,7 @@ document.getElementById('hdrLockBtn').addEventListener('click', function(){
 
     // layers that just opened → one history entry each
     current.forEach(function(l){
-      if(stack.indexOf(l) === -1){ stack.push(l); push(); }
+      if(stack.indexOf(l) === -1){ stack.push(l); push('layer'); }
     });
   }
   function schedule(){ if(!raf) raf = requestAnimationFrame(sync); }
@@ -22898,22 +23132,39 @@ document.getElementById('hdrLockBtn').addEventListener('click', function(){
     l.classList.remove('show'); l.classList.remove('open'); l.setAttribute('aria-hidden', 'true');
   }
 
-  window.addEventListener('popstate', function(){
+  window.addEventListener('popstate', function(e){
     if(skipPops > 0){ skipPops--; return; }
+
+    // Locked or on the login screen: Back must not close anything or leave the app.
+    if(isLocked() || loginShowing()){
+      push(stack.length ? 'layer' : 'base');
+      return;
+    }
+
     sync();                                   // make sure the stack is current first
-    if(!stack.length) return;                 // nothing open → normal Back
-    // overlays sit above the page: close the most recently opened overlay first
-    var top = null;
-    for(var i = stack.length - 1; i >= 0; i--){ if(stack[i] !== 'PAGE'){ top = stack[i]; break; } }
-    if(top === null) top = 'PAGE';
-    stack.splice(stack.indexOf(top), 1);      // its history entry was just consumed by Back
-    closeLayer(top);
-    schedule();
+    if(stack.length){
+      // overlays sit above the page: close the most recently opened overlay first
+      var top = null;
+      for(var i = stack.length - 1; i >= 0; i--){ if(stack[i] !== 'PAGE'){ top = stack[i]; break; } }
+      if(top === null) top = 'PAGE';
+      stack.splice(stack.indexOf(top), 1);    // its history entry was just consumed by Back
+      closeLayer(top);
+      schedule();
+      return;
+    }
+
+    // Dashboard, nothing open. On phones Back locks the app instead of leaving it.
+    if(isPhone()){
+      push('base');                           // keep the base entry so the next Back is caught too
+      var fab = document.getElementById('lockFab');
+      if(fab) fab.click();
+    }
   });
 
   var mo = new MutationObserver(schedule);
   function start(){
     if(history.state && history.state.dlpLayer){ try{ history.replaceState(null, ''); }catch(e){} }
+    if(isPhone() && !(history.state && history.state.dlpBase)) push('base');
     mo.observe(document.body, { attributes:true, attributeFilter:['class','style','aria-hidden'], subtree:true, childList:true });
     schedule();
   }
