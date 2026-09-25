@@ -6516,13 +6516,15 @@ body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
   justify-content:center; padding:10px 0 2px; border-bottom:2px solid rgba(224,172,82,.35);
 }
 .amount-hero-field .tx-amount-cur-symbol{
-  position:static; font:700 26px Arial,sans-serif; color:var(--brass); margin-right:4px;
+  position:static; font:700 34px Arial,sans-serif; color:var(--brass); margin-right:4px;
 }
 .amount-hero-field input#txAmount{
   all:unset; box-sizing:border-box; flex:0 1 auto; min-width:40px; max-width:220px;
-  font:700 44px Arial,sans-serif; letter-spacing:-.02em; color:var(--bone);
+  font:700 60px Arial,sans-serif; letter-spacing:-.02em; color:var(--bone);
   padding:0 !important; background:none !important; text-align:left;
 }
+.amount-hero-field input#txAmount.tx-amt-expense,
+.amount-hero-field.tx-amt-expense .tx-amount-cur-symbol{ color:rgb(var(--red)) !important; }
 .amount-hero-field .tx-amount-calc-toggle{
   position:static; margin-left:8px; width:38px; height:38px; border-radius:11px;
   background:var(--panel-2); border:1.5px solid var(--line); color:var(--brass);
@@ -6579,6 +6581,35 @@ body.light .field-card .transaction-field{
 .transaction-save.hero-cta{
   grid-column:1/-1; width:100%; border-radius:16px; padding:15px; font:700 15px Arial,sans-serif;
   background:linear-gradient(135deg, var(--brass), var(--brass-dim)); color:#1a1408;
+}
+
+/* ── Transparent field backgrounds across every modal & form ──────────
+   Every modal (transaction/debt/amort/income/settings — all of which
+   reuse the shared .transaction-modal chrome), the tag picker modal,
+   and the Utilities panel previously gave their inputs/selects a solid
+   dark (or, in light mode, solid light) fill. Requested: let the
+   modal's own background show through instead, everywhere a field
+   appears. The border stays so fields are still readable as fields. */
+.transaction-modal input,
+.transaction-modal select,
+.transaction-modal textarea,
+.tag-modal input,
+.tag-new-input,
+.util-panel input,
+.util-panel select,
+.sol-sim-field input,
+#amortModal .amort-settle-source{
+  background:transparent !important;
+}
+body.light .transaction-modal input,
+body.light .transaction-modal select,
+body.light .transaction-modal textarea,
+body.light .tag-modal input,
+body.light .tag-new-input,
+body.light .util-panel input,
+body.light .util-panel select,
+body.light .sol-sim-field input{
+  background:transparent !important;
 }
 </style><div class="wrap splash" id="wrap">
   <div class="splash-box" id="splashBox">
@@ -6831,13 +6862,15 @@ body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
   justify-content:center; padding:10px 0 2px; border-bottom:2px solid rgba(224,172,82,.35);
 }
 .amount-hero-field .tx-amount-cur-symbol{
-  position:static; font:700 26px Arial,sans-serif; color:var(--brass); margin-right:4px;
+  position:static; font:700 34px Arial,sans-serif; color:var(--brass); margin-right:4px;
 }
 .amount-hero-field input#txAmount{
   all:unset; box-sizing:border-box; flex:0 1 auto; min-width:40px; max-width:220px;
-  font:700 44px Arial,sans-serif; letter-spacing:-.02em; color:var(--bone);
+  font:700 60px Arial,sans-serif; letter-spacing:-.02em; color:var(--bone);
   padding:0 !important; background:none !important; text-align:left;
 }
+.amount-hero-field input#txAmount.tx-amt-expense,
+.amount-hero-field.tx-amt-expense .tx-amount-cur-symbol{ color:rgb(var(--red)) !important; }
 .amount-hero-field .tx-amount-calc-toggle{
   position:static; margin-left:8px; width:38px; height:38px; border-radius:11px;
   background:var(--panel-2); border:1.5px solid var(--line); color:var(--brass);
@@ -6851,7 +6884,7 @@ body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
 }
 .tbp-kpi .tbp-value{ font-size:20px; }
 .tbp-kpi .tbp-row:first-child{ margin-bottom:4px; }
-.tbp-kpi .tbp-row:first-child .tbp-value{ font-size:28px; font-weight:800; color:var(--sage); }
+.tbp-kpi .tbp-row:first-child .tbp-value{ font-size:36px; font-weight:800; color:var(--sage); }
 .tbp-kpi .tbp-row:nth-child(2){ font-size:11px; opacity:.7; }
 .tbp-kpi .tbp-row:nth-child(2) .tbp-value{ font-size:12px; }
 
@@ -9887,8 +9920,8 @@ body.light .transaction-modal.as-page #txKindGroup select{
     if(!Array.isArray(REAL_DB.transactions)) REAL_DB.transactions = [];
     const resId = document.getElementById('elecResidence').value;
     const date = document.getElementById('elecDate').value;
-    const prev = Number(document.getElementById('elecPrevKwh').value) || 0;
-    const pres = Number(document.getElementById('elecPresentKwh').value) || 0;
+    const prev = normalizeAmount(document.getElementById('elecPrevKwh').value);
+    const pres = normalizeAmount(document.getElementById('elecPresentKwh').value);
     const rate = Number(document.getElementById('elecRate').value) || 0;
     const status = document.getElementById('elecStatus').value;
     const editId = document.getElementById('elecEditId').value;
@@ -9981,7 +10014,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const prev = g('Prev'), curr = g('Curr'), use = g('Use'), rate = g('Rate'), amt = g(''), hint = document.getElementById(k.hint);
     if(!prev || !curr || !use || !rate || !amt) return;
     const haveReadings = prev.value !== '' && curr.value !== '';
-    const cons = haveReadings ? ubRound2(Number(curr.value) - Number(prev.value)) : null;
+    const cons = haveReadings ? ubRound2(ubNum(curr.value) - ubNum(prev.value)) : null;
     const bad = haveReadings && cons < 0;
     use.value = haveReadings && !bad ? String(cons) : '';
     const calc = haveReadings && !bad && rate.value !== '';
@@ -10141,7 +10174,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const note = document.getElementById('ubTotalNote');
     if(note) note.textContent = has ? 'Electricity + Water' : 'Enter an amount';
     const oc = document.getElementById('ubTabOtherAmt'), oa = document.getElementById('utilBillOtherAmt');
-    if(oc && oa) oc.textContent = formatMoneyValue(Number(oa.value) || 0, true);
+    if(oc && oa) oc.textContent = formatMoneyValue(ubNum(oa.value), true);
     if(has) t.value = ubFmtAmt(ubRound2(ubNum(e.value) + ubNum(w.value)));
   }
   function utilBillStatus(b){
@@ -10773,8 +10806,8 @@ body.light .transaction-modal.as-page #txKindGroup select{
     if(modeWrap) modeWrap.style.display = linked ? '' : 'none';
     const curWrap = document.getElementById('goalCurrent').closest('.transaction-field');
     if(curWrap) curWrap.style.display = (linked && mode === 'only') ? 'none' : '';
-    const target = Number(document.getElementById('goalTarget').value) || 0;
-    const manual = Number(document.getElementById('goalCurrent').value) || 0;
+    const target = normalizeAmount(document.getElementById('goalTarget').value);
+    const manual = normalizeAmount(document.getElementById('goalCurrent').value);
     const db = goalIncomeDb();
     const editingGoalId = document.getElementById('goalEditId').value;
     const sharers = linked ? 1 + ((REAL_DB && REAL_DB.goals) || []).filter(x => x.bucketId === sel.value && x.id !== editingGoalId).length : 1;
@@ -10845,14 +10878,14 @@ body.light .transaction-modal.as-page #txKindGroup select{
     goalsEnsureDb();
     const name = document.getElementById('goalName').value.trim();
     if(!name){ showAppStatusToast('Missing name', { detail:'Give the goal a name.', kind:'danger' }); return; }
-    const target = Number(document.getElementById('goalTarget').value) || 0;
+    const target = normalizeAmount(document.getElementById('goalTarget').value);
     if(!target){ showAppStatusToast('Missing target', { detail:'Set a target amount.', kind:'danger' }); return; }
     const editId = document.getElementById('goalEditId').value;
     const bucketId = document.getElementById('goalBucket').value || '';
     // Manual "Current Saved" amounts must be backed by money in Bank & Wallet.
     {
       const prevGoal = editId ? REAL_DB.goals.find(x => x.id === editId) : null;
-      const delta = (Number(document.getElementById('goalCurrent').value) || 0) - (prevGoal ? (Number(prevGoal.current) || 0) : 0);
+      const delta = normalizeAmount(document.getElementById('goalCurrent').value) - (prevGoal ? (Number(prevGoal.current) || 0) : 0);
       if(delta > 0){
         const cov = goalCoverage(delta);
         if(!cov.ok){
@@ -10867,8 +10900,8 @@ body.light .transaction-modal.as-page #txKindGroup select{
       name,
       desc: document.getElementById('goalDesc').value.trim(),
       target,
-      current: Number(document.getElementById('goalCurrent').value) || 0,
-      monthly: Number(document.getElementById('goalMonthly').value) || 0,
+      current: normalizeAmount(document.getElementById('goalCurrent').value),
+      monthly: normalizeAmount(document.getElementById('goalMonthly').value),
       deadline: document.getElementById('goalDeadline').value || '',
       color: document.getElementById('goalColor').value || 'blue',
       bucketId,
@@ -10914,7 +10947,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
   function goalTopupRender(){
     const box = document.getElementById('goalTopupCov'), btn = document.getElementById('goalTopupSave');
     if(!box || !btn) return;
-    const add = Number(document.getElementById('goalTopupAmt').value) || 0;
+    const add = normalizeAmount(document.getElementById('goalTopupAmt').value);
     const c = goalCoverage(add);
     const m = v => formatMoneyValue(v, true);
     let status = '';
@@ -10947,7 +10980,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
   function goalTopupSave(){
     const g = (REAL_DB.goals || []).find(x => x.id === _goalTopupId);
     if(!g) return goalTopupClose();
-    const amount = Number(document.getElementById('goalTopupAmt').value) || 0;
+    const amount = normalizeAmount(document.getElementById('goalTopupAmt').value);
     if(!(amount > 0)) return;
     if(!goalCoverage(amount).ok){ goalTopupRender(); return; }
     goalsEnsureDb();
@@ -11513,6 +11546,48 @@ body.light .transaction-modal.as-page #txKindGroup select{
     }
     el.setSelectionRange(newPos, newPos);
   }
+
+  // ── Global comma formatting for every currency field ────────────────
+  // Currency inputs across the app (Rebate, Penalty/Late Fee, Principal,
+  // Down Payment, Monthly Payment, etc.) were plain <input type="number">
+  // fields, which browsers refuse to display with thousand-separating
+  // commas. Every one of them is written as step="0.01", so rather than
+  // converting each field by hand, any such field is auto-upgraded the
+  // moment it appears anywhere in the app: switched to a text input with
+  // the same numeric keyboard (inputmode="decimal"), given the same live
+  // comma formatting as the main Amount field, and left readable by
+  // existing code, since every read site already calls normalizeAmount()
+  // first, which strips commas back out.
+  function upgradeCurrencyInput(el){
+    if(!el || el.dataset.commaFmt) return;
+    if(el.tagName !== 'INPUT' || el.type !== 'number') return;
+    if(el.getAttribute('step') !== '0.01') return;
+    el.dataset.commaFmt = '1';
+    el.type = 'text';
+    el.setAttribute('inputmode', 'decimal');
+    if(el.value) el.value = formatAmountDisplay(el.value);
+    el.addEventListener('input', function(){ reformatAmountInput(el); });
+  }
+  function upgradeCurrencyInputsIn(root){
+    if(!root || typeof root.querySelectorAll !== 'function') return;
+    root.querySelectorAll('input[type="number"][step="0.01"]').forEach(upgradeCurrencyInput);
+  }
+  (function watchForCurrencyInputs(){
+    function boot(){
+      upgradeCurrencyInputsIn(document);
+      const obs = new MutationObserver(function(mutations){
+        mutations.forEach(function(m){
+          m.addedNodes.forEach(function(node){
+            if(node.nodeType !== 1) return;
+            if(node.matches && node.matches('input[type="number"][step="0.01"]')) upgradeCurrencyInput(node);
+            upgradeCurrencyInputsIn(node);
+          });
+        });
+      });
+      obs.observe(document.body, { childList:true, subtree:true });
+    }
+    if(document.body) boot(); else document.addEventListener('DOMContentLoaded', boot);
+  })();
 
   // ── App-styled confirm/alert dialog ──────────────────────────────────
   // Replaces window.confirm()/alert() everywhere in the app. Native
@@ -19191,7 +19266,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
   }
   function incomePreview(){
     const db = ensureIncomeAllocationDB();
-    const amt = Math.max(0, parseFloat(document.getElementById('ifAmount').value) || 0);
+    const amt = normalizeAmount(document.getElementById('ifAmount').value);
     const donutAmt = document.getElementById('ifDonutAmount');
     const donutG = document.getElementById('ifDonutSegments');
     const bucketListEl = document.getElementById('ifBucketList');
@@ -19346,7 +19421,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const db = ensureIncomeAllocationDB();
     const desc = document.getElementById('ifDesc').value.trim();
     if(!desc) return showAppStatusToast('Description required', { kind:'danger' });
-    const amount = parseFloat(document.getElementById('ifAmount').value) || 0;
+    const amount = normalizeAmount(document.getElementById('ifAmount').value);
     if(!amount) return showAppStatusToast('Amount required', { kind:'danger' });
     const date = document.getElementById('ifDate').value || isoDateOf(DASHBOARD_TODAY);
     const cat = document.getElementById('ifCat').value;
@@ -19672,7 +19747,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const db = ensureIncomeAllocationDB();
     const from = document.getElementById('itfFrom').value;
     const to = document.getElementById('itfTo').value;
-    const amount = parseFloat(document.getElementById('itfAmount').value) || 0;
+    const amount = normalizeAmount(document.getElementById('itfAmount').value);
     const notes = document.getElementById('itfNotes').value.trim();
     if(from===to) return showAppStatusToast('Pick two different buckets', { kind:'danger' });
     if(!amount) return showAppStatusToast('Amount required', { kind:'danger' });
@@ -19703,7 +19778,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     e.preventDefault();
     const db = ensureIncomeAllocationDB();
     const from = document.getElementById('wdFrom').value;
-    const amount = parseFloat(document.getElementById('wdAmount').value) || 0;
+    const amount = normalizeAmount(document.getElementById('wdAmount').value);
     const notes = document.getElementById('wdNotes').value.trim();
     if(!amount) return showAppStatusToast('Amount required', { kind:'danger' });
     if((db.incBuckets[from]||0) < amount) return showAppStatusToast('Insufficient balance in that bucket', { kind:'danger' });
@@ -20212,7 +20287,16 @@ body.light .transaction-modal.as-page #txKindGroup select{
   // the linked Bank/Wallet Source — updates as the amount, sign (Type),
   // or selected account change, so the effect on that account's balance
   // is visible before saving. Mirrors the +/- math applied on save.
+  // Keeps a long typed amount on one line inside its max-width by shrinking
+  // the hero font (down to a 28px floor) instead of overflowing or wrapping.
+  function fitTxAmountInput(){
+    const el = document.getElementById('txAmount');
+    if(el && typeof iaFitText === 'function') iaFitText(el, 28);
+  }
+  window.addEventListener('resize', () => { if(document.getElementById('txAmount')) fitTxAmountInput(); });
   function updateTxBankBalancePreview(){
+    fitTxAmountInput();
+    applyTxAmountColor();
     const form = document.getElementById('transactionForm');
     const box = document.getElementById('txBankBalancePreview');
     if(!form || !box) return;
@@ -20232,6 +20316,12 @@ body.light .transaction-modal.as-page #txKindGroup select{
 
     const currentBalance = normalizeAmount(acct.amount) || 0;
     const currentSpendable = bwSpendable(acct);
+    // Total Spendable is the sum of Spendable across every account (cash +
+    // every bank/wallet), not just the one this transaction is paid from —
+    // it answers "how much can I spend right now, from anywhere", while the
+    // payment/withdrawal math below still only draws against the selected
+    // account's own Spendable.
+    const totalSpendable = getBankAccounts().reduce((sum, a) => sum + bwSpendable(a), 0);
     const rawAmount = normalizeAmount(form.amount.value) || 0;
     const sign = form.sign.value === 'pos' ? 1 : -1;
     // Payment/expense withdrawals consume the Expenses bucket only.
@@ -20240,6 +20330,9 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const projected = isSpendableWithdrawal
       ? Math.max(0, currentSpendable - rawAmount)
       : Math.max(0, currentBalance + rawAmount);
+    const totalProjected = isSpendableWithdrawal
+      ? Math.max(0, totalSpendable - rawAmount)
+      : totalSpendable;
     const wouldGoNegative = (currentBalance + sign * rawAmount) < 0;
 
     const dirClass = rawAmount === 0 ? '' : (sign > 0 ? 'up' : 'down');
@@ -20247,12 +20340,13 @@ body.light .transaction-modal.as-page #txKindGroup select{
       `<div class="tbp-row"><span class="tbp-label">${sign > 0 ? 'Deposit' : 'Withdrawal'}</span><span class="tbp-value">${sign > 0 ? '+' : '−'}${formatMoneyValue(rawAmount)}</span></div>`;
 
     box.innerHTML = `
-      <div class="tbp-row"><span class="tbp-label">${isSpendableWithdrawal ? 'Current Spendable' : 'Current balance'}</span><span class="tbp-value">${formatMoneyValue(isSpendableWithdrawal ? currentSpendable : currentBalance)}</span></div>
+      <div class="tbp-row"><span class="tbp-label">${isSpendableWithdrawal ? 'Total Spendable' : 'Current balance'}</span><span class="tbp-value">${formatMoneyValue(isSpendableWithdrawal ? totalSpendable : currentBalance)}</span></div>
       ${deltaLabel}
-      <div class="tbp-row"><span class="tbp-label">${isSpendableWithdrawal ? 'Spendable after payment' : 'Balance after saving'}</span><span class="tbp-value tbp-new ${dirClass}">${formatMoneyValue(projected)}</span></div>
+      <div class="tbp-row"><span class="tbp-label">${isSpendableWithdrawal ? 'Spendable after payment' : 'Balance after saving'}</span><span class="tbp-value tbp-new ${dirClass}">${formatMoneyValue(isSpendableWithdrawal ? totalProjected : projected)}</span></div>
       ${isSpendableWithdrawal && rawAmount > currentSpendable ? `<div class="tbp-warn">Insufficient Spendable balance — Savings is locked.</div>` : (wouldGoNegative ? '<div class="tbp-warn">Insufficient funds — balance floors at ${formatMoneyValue(0, true)}</div>' : '')}
     `;
     box.style.display = '';
+    document.querySelectorAll('.tbp-kpi .tbp-value').forEach(el => iaFitText(el, 15));
   }
 
   // Debt payments don't need a typed description — it's generated from the
@@ -20334,6 +20428,22 @@ body.light .transaction-modal.as-page #txKindGroup select{
     if(typeof updateTxBankBalancePreview === 'function') updateTxBankBalancePreview();
   }
 
+  // The Add Expense amount renders red — reads the Type select directly (not
+  // a cached value) so it's correct no matter which code path opened or
+  // repositioned the form (popup, full-page Quick Add, edit, etc).
+  function applyTxAmountColor(){
+    const form = document.getElementById('transactionForm');
+    const amountInput = document.getElementById('txAmount');
+    if(!form || !amountInput) return;
+    const curSymbol = document.getElementById('txAmountCurSymbol');
+    const heroField = amountInput.closest('.amount-hero-field');
+    const isExpenseAmount = form.kind && form.kind.value === 'expense';
+    amountInput.classList.toggle('tx-amt-expense', isExpenseAmount);
+    if(heroField) heroField.classList.toggle('tx-amt-expense', isExpenseAmount);
+    amountInput.style.setProperty('color', isExpenseAmount ? 'rgb(var(--red))' : '', 'important');
+    if(curSymbol) curSymbol.style.setProperty('color', isExpenseAmount ? 'rgb(var(--red))' : '', 'important');
+  }
+
   // Swaps the Category list, and shows/hides the Link-to-Debt and Penalty
   // fields, based on the selected Type — ported from DebtLedgerPro's
   // updateAddForm().
@@ -20345,6 +20455,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const debtGroup = document.getElementById('txDebtLinkGroup');
     const penaltyGroup = document.getElementById('txPenaltyGroup');
     const rebateGroup = document.getElementById('txRebateGroup');
+    applyTxAmountColor();
     let cats;
     if(kind === 'debt'){
       cats = TX_DEBT_CATS;
@@ -22549,6 +22660,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const kindSel = document.getElementById('txKind');
     if(kindSel) kindSel.addEventListener('change', function(){
       if(typeof updateTxKindFields === 'function') updateTxKindFields();
+      if(typeof applyTxAmountColor === 'function') applyTxAmountColor();
     });
     const debtLinkSel = document.getElementById('txDebtLink');
     if(debtLinkSel) debtLinkSel.addEventListener('change', function(){
@@ -22793,15 +22905,15 @@ body.light .transaction-modal.as-page #txKindGroup select{
           const dateEl = txPage.querySelector('.amort-txn-date');
           const statusEl = txPage.querySelector('.amort-txn-status');
           const subEl = txPage.querySelector('.amort-txn-sub');
-          const amount = parseFloat(amountEl && amountEl.value) || 0;
-          const rebate = Math.max(0, parseFloat(rebateEl && rebateEl.value) || 0);
+          const amount = amountEl ? normalizeAmount(amountEl.value) : 0;
+          const rebate = rebateEl ? normalizeAmount(rebateEl.value) : 0;
           // Penalty is editable right here (same as Rebate) so it's never a
           // hidden value. It is NOT part of what's credited to the schedule:
           // debtLedgerPayments() credits amount + rebate only. Instead it is
           // charged separately as its own linked "Late fee" transaction
           // (syncPenaltyFee) that leaves the same bank/wallet as the payment.
           // Left blank, it saves as 0 and no fee is created.
-          const penalty = Math.max(0, parseFloat(penaltyEl && penaltyEl.value) || 0);
+          const penalty = penaltyEl ? normalizeAmount(penaltyEl.value) : 0;
           const date = dateEl && dateEl.value;
           if(amount <= 0 || !date){ await appAlert('Enter a valid amount and date.'); return; }
           const status = statusEl ? statusEl.value : 'paid';
@@ -23008,9 +23120,9 @@ body.light .transaction-modal.as-page #txKindGroup select{
       // fee, and the total cash that will leave the account.
       const refreshTxnHint = function(txPage){
         const due = parseFloat(txPage.dataset.due) || 0;
-        const rebate = Math.max(0, parseFloat((txPage.querySelector('.amort-txn-rebate') || {}).value) || 0);
-        const penalty = Math.max(0, parseFloat((txPage.querySelector('.amort-txn-penalty') || {}).value) || 0);
-        const amount = Math.max(0, parseFloat((txPage.querySelector('.amort-txn-amount') || {}).value) || 0);
+        const rebate = normalizeAmount((txPage.querySelector('.amort-txn-rebate') || {}).value);
+        const penalty = normalizeAmount((txPage.querySelector('.amort-txn-penalty') || {}).value);
+        const amount = normalizeAmount((txPage.querySelector('.amort-txn-amount') || {}).value);
         const hint = txPage.querySelector('.amort-txn-hint');
         if(!hint) return;
         hint.textContent = 'Declared monthly amort: ' + formatMoneyValue(due, true) +
@@ -23023,14 +23135,14 @@ body.light .transaction-modal.as-page #txKindGroup select{
         const txPage = rebateEl.closest('.amort-txn-page');
         if(!txPage) return;
         const due = parseFloat(txPage.dataset.due) || 0;
-        const rebate = Math.max(0, parseFloat(rebateEl.value) || 0);
+        const rebate = normalizeAmount(rebateEl.value);
         const prev = Math.max(0, parseFloat(rebateEl.dataset.prev) || 0);
         const amountEl = txPage.querySelector('.amort-txn-amount');
         // Shift Amount by the change in rebate instead of resetting it to
         // due − rebate, so a deliberately typed partial/other amount isn't
         // wiped out by touching the rebate. A blank Amount starts from due.
         if(amountEl){
-          const cur = parseFloat(amountEl.value);
+          const cur = normalizeAmount(amountEl.value);
           const base = isNaN(cur) ? (due - prev) : cur;
           amountEl.value = Math.max(0, base + prev - rebate).toFixed(2);
         }
