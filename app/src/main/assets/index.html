@@ -2349,6 +2349,13 @@
   .ia-entry-body{ flex:1; min-width:0; }
   .ia-entry-desc{ font-size:12.5px; font-weight:700; color:var(--bone); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ia-entry-sub{ font-size:10.5px; color:var(--bone-dim); margin-top:2px; }
+  .ia-mop-tag{
+    display:inline-flex; align-items:center; padding:1.5px 7px; border-radius:20px;
+    font-size:9.5px; font-weight:700; letter-spacing:0.01em; line-height:1.5;
+    color:var(--mc); background:color-mix(in srgb, var(--mc) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--mc) 35%, transparent);
+    vertical-align:middle;
+  }
   .ia-entry-amt{ text-align:right; flex-shrink:0; }
   .ia-entry-money{ font-size:13px; font-weight:700; color:var(--sage); }
   .ia-entry-route{ font-size:9.5px; color:var(--bone-dim); margin-top:2px; }
@@ -2402,6 +2409,8 @@
   #incomeFormModal .if-form-col{ padding:22px 26px 8px; border-right:var(--border-w) solid var(--line-soft); }
   #incomeFormModal .if-preview-col{ padding:22px 26px 8px; background:rgba(255,255,255,0.012); }
   #incomeFormModal .if-field{ margin-bottom:18px; }
+  #unlockSavingsModal .if-field,
+  #transferModal .if-field{ margin-bottom:18px; }
   #incomeFormModal .if-field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
   #incomeFormModal .if-field-label{
     display:block; font-size:10.5px; letter-spacing:0.09em; text-transform:uppercase;
@@ -2414,7 +2423,9 @@
   #incomeFormModal input[type="text"],
   #incomeFormModal input[type="number"],
   #incomeFormModal input[type="date"],
-  #incomeFormModal select{
+  #incomeFormModal select,
+  #unlockSavingsModal select,
+  #transferModal select{
     width:100%; box-sizing:border-box; padding:10px 12px; border-radius:9px;
     border:var(--border-w) solid rgba(155,177,203,.25); outline:none;
     background:rgba(7,13,22,.62); color:var(--bone);
@@ -2424,13 +2435,17 @@
   body.light #incomeFormModal input[type="text"],
   body.light #incomeFormModal input[type="number"],
   body.light #incomeFormModal input[type="date"],
-  body.light #incomeFormModal select{
+  body.light #incomeFormModal select,
+  body.light #unlockSavingsModal select,
+  body.light #transferModal select{
     border-color:rgba(0,0,0,.14); background:rgba(255,255,255,.75); color-scheme:light;
   }
   #incomeFormModal input[type="text"]:focus,
   #incomeFormModal input[type="number"]:focus,
   #incomeFormModal input[type="date"]:focus,
-  #incomeFormModal select:focus{
+  #incomeFormModal select:focus,
+  #unlockSavingsModal select:focus,
+  #transferModal select:focus{
     border-color:rgba(196,157,90,.7); box-shadow:0 0 0 3px rgba(196,157,90,.16);
   }
   #incomeFormModal select:disabled{ opacity:.55; cursor:not-allowed; }
@@ -2441,7 +2456,9 @@
   #incomeFormModal input[type="date"]::-webkit-calendar-picker-indicator{
     filter:invert(.7); cursor:pointer;
   }
-  #incomeFormModal select{ cursor:pointer; }
+  #incomeFormModal select,
+  #unlockSavingsModal select,
+  #transferModal select{ cursor:pointer; }
   #incomeFormModal .if-amount-wrap{ position:relative; }
   #incomeFormModal .if-amount-wrap .if-cur-sym{
     position:absolute; left:13px; top:50%; transform:translateY(-50%);
@@ -2456,28 +2473,54 @@
   }
   #incomeFormModal .if-chip:hover{ border-color:var(--brass-dim); color:var(--brass); }
 
-  #incomeFormModal .if-route-label{ font-size:10.5px; letter-spacing:0.09em; text-transform:uppercase; color:var(--bone-dim); font-weight:700; margin-bottom:9px; }
-  #incomeFormModal .if-route-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-  #incomeFormModal .if-route-card{
+  #incomeFormModal .if-route-label,
+  #unlockSavingsModal .if-route-label,
+  #transferModal .if-route-label{ font-size:10.5px; letter-spacing:0.09em; text-transform:uppercase; color:var(--bone-dim); font-weight:700; margin-bottom:9px; }
+  #incomeFormModal .if-route-grid,
+  #unlockSavingsModal .if-route-grid,
+  #transferModal .if-route-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  #incomeFormModal .if-route-card,
+  #unlockSavingsModal .if-route-card,
+  #transferModal .if-route-card{
     border:var(--border-w) solid var(--line); border-radius:10px; padding:13px 14px;
     cursor:pointer; transition:all .15s ease; background:var(--ink);
   }
-  #incomeFormModal .if-route-card.active{
+  #incomeFormModal .if-route-card.active,
+  #unlockSavingsModal .if-route-card.active,
+  #transferModal .if-route-card.active{
     border-color:var(--brass);
     background:linear-gradient(180deg, rgba(201,162,75,0.10), rgba(201,162,75,0.03));
   }
-  #incomeFormModal .if-route-card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
-  #incomeFormModal .if-route-card-title{ font-size:13px; font-weight:700; color:var(--bone); }
-  #incomeFormModal .if-route-card-desc{ font-size:11.5px; color:var(--bone-dim); line-height:1.4; }
-  #incomeFormModal .if-radio-dot{
+  #incomeFormModal .if-route-card-head,
+  #unlockSavingsModal .if-route-card-head,
+  #transferModal .if-route-card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  #incomeFormModal .if-route-card-title,
+  #unlockSavingsModal .if-route-card-title,
+  #transferModal .if-route-card-title{ font-size:13px; font-weight:700; color:var(--bone); }
+  #incomeFormModal .if-route-card-desc,
+  #unlockSavingsModal .if-route-card-desc,
+  #transferModal .if-route-card-desc{ font-size:11.5px; color:var(--bone-dim); line-height:1.4; }
+  #incomeFormModal .if-radio-dot,
+  #unlockSavingsModal .if-radio-dot,
+  #transferModal .if-radio-dot{
     width:16px; height:16px; border-radius:50%; border:2px solid var(--line);
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
   }
-  #incomeFormModal .if-route-card.active .if-radio-dot{ border-color:var(--brass); }
-  #incomeFormModal .if-radio-dot::after{ content:""; width:7px; height:7px; border-radius:50%; background:var(--brass); display:none; }
-  #incomeFormModal .if-route-card.active .if-radio-dot::after{ display:block; }
-  #incomeFormModal .if-single-bucket-select{ display:none; margin-bottom:12px; }
-  #incomeFormModal .if-single-bucket-select.show{ display:block; }
+  #incomeFormModal .if-route-card.active .if-radio-dot,
+  #unlockSavingsModal .if-route-card.active .if-radio-dot,
+  #transferModal .if-route-card.active .if-radio-dot{ border-color:var(--brass); }
+  #incomeFormModal .if-radio-dot::after,
+  #unlockSavingsModal .if-radio-dot::after,
+  #transferModal .if-radio-dot::after{ content:""; width:7px; height:7px; border-radius:50%; background:var(--brass); display:none; }
+  #incomeFormModal .if-route-card.active .if-radio-dot::after,
+  #unlockSavingsModal .if-route-card.active .if-radio-dot::after,
+  #transferModal .if-route-card.active .if-radio-dot::after{ display:block; }
+  #incomeFormModal .if-single-bucket-select,
+  #unlockSavingsModal .if-single-bucket-select,
+  #transferModal .if-single-bucket-select{ display:none; margin-bottom:12px; }
+  #incomeFormModal .if-single-bucket-select.show,
+  #unlockSavingsModal .if-single-bucket-select.show,
+  #transferModal .if-single-bucket-select.show{ display:block; }
   #incomeFormModal .if-buckets-used{
     font-size:11px; color:var(--brass); background:rgba(201,162,75,0.08);
     border:var(--border-w) solid rgba(201,162,75,0.25); border-radius:8px; padding:8px 12px; margin-top:2px;
@@ -3742,6 +3785,12 @@
   .tx-bank-balance-preview .tbp-value{ font-weight:600; }
   .tx-bank-balance-preview .tbp-new.up{ color:#3FA987; }
   .tx-bank-balance-preview .tbp-new.down{ color:#C1587A; }
+  .tx-bank-balance-preview .tbp-value{ display:inline-flex; align-items:center; gap:8px; }
+  .tx-bank-balance-preview .tbp-unlock-btn{
+    font-size:11px; font-weight:700; padding:3px 9px; border-radius:7px;
+    background:var(--brass); color:var(--ink); border:none; cursor:pointer;
+  }
+  .transaction-modal-sub{ font-size:12.5px; color:var(--bone-dim); margin-top:2px; }
   .tx-bank-balance-preview .tbp-warn{
     margin-top:4px;
     color:#C1587A;
@@ -9271,10 +9320,31 @@ body.light .transaction-modal.as-page #txKindGroup select{
         if(afterRebuild && typeof REAL_DB === 'object' && REAL_DB && Array.isArray(REAL_DB.bankTxns)){
           REAL_DB.bankTxns.forEach(t => { if(t && t.id != null) realTxnIds.add(String(t.id)); });
         }
+        // SAME DUPLICATE-ON-REFRESH BUG, for bank/wallet ACCOUNTS themselves:
+        // saveBankAccountForm() writes a brand-new account under id X into
+        // both VAULT_DB (for the on-screen list) and REAL_DB.banks (for
+        // persistence) — but the rebuild below re-derives every
+        // REAL_DB.banks entry with id "bank-"+X, not X. Without folding,
+        // this saved overlay copy (still plain id X) got pushed back in as
+        // a second, ghost account alongside the freshly rebuilt "bank-X"
+        // one, so every bank/wallet you added showed twice after a reload.
+        const realBankIds = new Set();
+        if(afterRebuild && typeof REAL_DB === 'object' && REAL_DB && Array.isArray(REAL_DB.banks)){
+          REAL_DB.banks.forEach(b => { if(b && b.id != null) realBankIds.add(String(b.id)); });
+        }
         saved.forEach(rec => {
           if(!rec || !rec.id) return;
           if(realTxnIds.has(String(rec.id))){
             const twin = VAULT_DB.find(x => String(x.id) === 'banktxn-' + String(rec.id));
+            if(twin){
+              const restTwin = slimTxForStorage(rec);
+              delete restTwin.id;
+              Object.assign(twin, restTwin);
+            }
+            return;
+          }
+          if(rec.category === 'bank' && !rec.bankId && realBankIds.has(String(rec.id))){
+            const twin = VAULT_DB.find(x => String(x.id) === 'bank-' + String(rec.id));
             if(twin){
               const restTwin = slimTxForStorage(rec);
               delete restTwin.id;
@@ -17949,6 +18019,7 @@ body.light .transaction-modal.as-page #txKindGroup select{
     }
     form.reset();
     form.dataset.returnAcct = fromAcctId || '';
+    delete form.dataset.viaUnlock;
     populateTransferAccountSelects(fromAcctId, toAcctId);
     const titleEl = document.getElementById('transferModalTitle');
     if(titleEl) titleEl.textContent = toAcctId ? 'Top Up Cash' : 'Transfer Funds';
@@ -18020,6 +18091,63 @@ body.light .transaction-modal.as-page #txKindGroup select{
   }
   // Live "from → to" balance-after-transfer preview, mirroring the
   // amortization/txn preview pattern used elsewhere in the dashboard.
+  // Locked Savings in the source account is never transferable directly —
+  // only its Spendable slice is — so the preview caps against Spendable
+  // and surfaces an "Unlock Savings" shortcut whenever the source account
+  // has something locked.
+  let _transferRoute = 'auto';
+  // Once Savings has been unlocked for the account currently selected as
+  // "From", the money being sent on is effectively new spendable funds
+  // arriving in the destination account — the same situation as a Top Up —
+  // so give it the same Auto-split / Send to one bucket choice for however
+  // it should land in the destination's buckets.
+  function buildTransferRoutePills(sel){
+    const db = ensureIncomeAllocationDB();
+    _transferRoute = (sel && (sel === 'auto' || (db.incBd||[]).some(b => b.id === sel))) ? sel : 'auto';
+    const container = document.getElementById('tfRoutePills');
+    if(!container) return;
+    container.innerHTML = `
+      <div class="if-route-card${_transferRoute==='auto'?' active':''}" data-route="auto">
+        <div class="if-route-card-head"><span class="if-route-card-title">Auto-split</span><span class="if-radio-dot"></span></div>
+        <div class="if-route-card-desc">Divided across the destination's saved buckets by their set %.</div>
+      </div>
+      <div class="if-route-card${_transferRoute!=='auto'?' active':''}" data-route="single">
+        <div class="if-route-card-head"><span class="if-route-card-title">Send to one bucket</span><span class="if-radio-dot"></span></div>
+        <div class="if-route-card-desc">Full amount goes to a single bucket you choose.</div>
+      </div>`;
+    container.querySelectorAll('.if-route-card').forEach(el => {
+      el.addEventListener('click', () => {
+        if(el.dataset.route === 'auto'){
+          _transferRoute = 'auto';
+        } else {
+          const sel2 = document.getElementById('tfSingleBucketSelect');
+          _transferRoute = (sel2 && sel2.value) || ((db.incBd||[])[0] && db.incBd[0].id) || 'auto';
+        }
+        container.querySelectorAll('.if-route-card').forEach(c => c.classList.toggle('active', c === el));
+        document.getElementById('tfSingleBucketWrap').classList.toggle('show', el.dataset.route === 'single');
+      });
+    });
+    const singleSel = document.getElementById('tfSingleBucketSelect');
+    if(singleSel){
+      singleSel.innerHTML = (db.incBd||[]).map(b => `<option value="${b.id}"${_transferRoute===b.id?' selected':''}>${b.name}</option>`).join('');
+      singleSel.onchange = () => { _transferRoute = singleSel.value; };
+    }
+    document.getElementById('tfSingleBucketWrap').classList.toggle('show', _transferRoute !== 'auto');
+  }
+  // Slices for the destination-side split preview/history, computed
+  // straight from an amount + chosen route (no income entry involved —
+  // this money is moving between the person's own accounts, not new
+  // income), mirroring splitSlicesForEntry's shape so it renders the same.
+  // Each slice carries its bucket id so the caller can also credit the
+  // real Income Allocation bucket totals, not just render a preview.
+  function splitSlicesForRoute(db, route, amount){
+    const bd = db.incBd || [];
+    if(route === 'auto'){
+      return bd.map((b,i) => ({ id:b.id, name:b.name, color:iaColorHex(b.color,i), pct:b.pct, value: amount*b.pct/100 }));
+    }
+    const b = bd.find(x => x.id === route);
+    return [{ id: b ? b.id : '', name: b ? b.name : 'Unknown Bucket', color:'#7FA88A', pct:100, value:amount }];
+  }
   function updateTransferBalancePreview(){
     const form = document.getElementById('transferForm');
     const preview = document.getElementById('transferBalancePreview');
@@ -18029,16 +18157,31 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const toAcct = accounts.find(a => bwAcctId(a) === form.tfTo.value);
     const amt = normalizeAmount(form.tfAmount.value);
     const fee = form.tfFee ? Math.max(0, normalizeAmount(form.tfFee.value) || 0) : 0;
-    if(!fromAcct || !toAcct){ preview.innerHTML = ''; return; }
+    const routeWrap = document.getElementById('tfRouteWrap');
+    if(!fromAcct || !toAcct){ preview.innerHTML = ''; if(routeWrap) routeWrap.style.display = 'none'; return; }
     const fromBal = normalizeAmount(fromAcct.amount);
     const toBal = normalizeAmount(toAcct.amount);
+    const fromSpendable = bwSpendable(fromAcct);
+    const fromLocked = bwSavings(fromAcct);
     const fromNew = fromBal - amt - fee;
     const toNew = toBal + amt;
+    if(form.tfAmount) form.tfAmount.max = fromLocked > 0 ? fromSpendable : '';
+    const exceedsSpendable = fromLocked > 0 && (amt + fee) > fromSpendable + 0.005;
+    const viaUnlock = form.dataset.viaUnlock === 'true';
+    if(routeWrap){
+      routeWrap.style.display = viaUnlock ? '' : 'none';
+      if(viaUnlock){
+        buildTransferRoutePills(_transferRoute);
+        const note = document.getElementById('tfRouteNote');
+        if(note) note.textContent = `This transfer includes Savings you just unlocked — choose how it splits into ${toAcct.title}'s buckets, same as a Top-up.`;
+      }
+    }
     preview.innerHTML = `
       <div class="tbp-row"><span class="tbp-label">${fromAcct.title}</span><span class="tbp-value tbp-new down">${formatMoneyValue(fromBal, true)} → ${formatMoneyValue(fromNew, true)}</span></div>
       <div class="tbp-row"><span class="tbp-label">${toAcct.title}</span><span class="tbp-value tbp-new up">${formatMoneyValue(toBal, true)} → ${formatMoneyValue(toNew, true)}</span></div>
       ${fee > 0 ? `<div class="tbp-row"><span class="tbp-label">Transfer Fee</span><span class="tbp-value">−${formatMoneyValue(fee, true)}</span></div>` : ''}
-      ${fromNew < 0 ? `<div class="tbp-warn">Insufficient balance in ${fromAcct.title}</div>` : ''}
+      ${fromLocked > 0 ? `<div class="tbp-row tbp-lock-row"><span class="tbp-label">🔒 Locked in Savings</span><span class="tbp-value">${formatMoneyValue(fromLocked, true)}<button type="button" class="tbp-unlock-btn" onclick="openUnlockSavingsModal('${bwAcctId(fromAcct)}')">Unlock</button></span></div>` : ''}
+      ${exceedsSpendable ? `<div class="tbp-warn">Only ${formatMoneyValue(fromSpendable, true)} is Spendable in ${fromAcct.title}. Unlock Savings first to transfer more.</div>` : (fromNew < 0 ? `<div class="tbp-warn">Insufficient balance in ${fromAcct.title}</div>` : '')}
     `;
   }
   async function saveTransfer(e){
@@ -18062,11 +18205,48 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const toAcct = getBankAccounts().find(a => bwAcctId(a) === toId);
     if(!fromAcct || !toAcct) return;
     const fromBal = normalizeAmount(fromAcct.amount);
+    const fromSpendable = bwSpendable(fromAcct);
+    const fromLocked = bwSavings(fromAcct);
+    // Locked Savings is never transferable — only Spendable is. If the
+    // request needs the locked portion too, stop and point at Unlock
+    // Savings instead of silently drawing down locked funds.
+    if(fromLocked > 0 && (amount + fee) > fromSpendable + 0.005){
+      showAppStatusToast('Savings is locked', {
+        detail: `Only ${formatMoneyValue(fromSpendable, true)} is Spendable in ${fromAcct.title}. ${formatMoneyValue(fromLocked, true)} is locked in Savings — unlock it first to include it in this transfer.`,
+        kind: 'danger'
+      });
+      return;
+    }
     if(amount + fee > fromBal){
       if(!(await appConfirm(`This will overdraw "${fromAcct.title}". Continue anyway?`, { title: 'Insufficient balance', danger: true }))) return;
     }
     fromAcct.amount = formatMoneyValue(Math.max(0, fromBal - amount - fee));
     toAcct.amount = formatMoneyValue(normalizeAmount(toAcct.amount) + amount);
+
+    // Unlocked Savings riding along on this transfer is new money landing
+    // in the destination account, same as a Top-up — so split it into the
+    // destination's buckets per the chosen route instead of letting it
+    // fall entirely into Spendable the way an ordinary transfer would.
+    // toSlices is the single source of truth for that split: it both
+    // drives the account-level Spendable/Savings partition below AND
+    // credits the real Income Allocation bucket totals (db.incBuckets),
+    // so the money is only ever routed into buckets once — never a
+    // separate account-level split plus a second, independent
+    // "auto-allocated" credit in Income Allocation for the same amount.
+    const viaUnlock = form.dataset.viaUnlock === 'true';
+    let toSlices = null;
+    if(viaUnlock){
+      const iaDb = ensureIncomeAllocationDB();
+      toSlices = splitSlicesForRoute(iaDb, _transferRoute, amount);
+      const expBucket = iaExpensesBucket(iaDb);
+      const savPortion = toSlices.reduce((s, sl) => s + (sl.id && sl.id !== (expBucket && expBucket.id) ? sl.value : 0), 0);
+      toAcct.savings = bwSavings(toAcct) + Math.round(savPortion * 100) / 100;
+      toSlices.forEach(sl => {
+        if(!sl.id) return;
+        iaDb.incBuckets[sl.id] = (iaDb.incBuckets[sl.id] || 0) + sl.value;
+      });
+      persistIncomeAllocation();
+    }
 
     const groupId = 'tf' + Date.now();
     VAULT_DB.push({
@@ -18077,7 +18257,8 @@ body.light .transaction-modal.as-page #txKindGroup select{
     VAULT_DB.push({
       id: groupId + '-in', category: 'bank', bankId: toId,
       title: `Transfer from ${fromAcct.title}`, sub: notes || 'Transfer', amount: formatMoneyValue(amount, true),
-      sign: 'pos', date, keywords: ['transfer'], transferGroup: groupId
+      sign: 'pos', date, keywords: ['transfer'], transferGroup: groupId,
+      splitApplied: toSlices || undefined
     });
     // Transfer fee is its own expense-flavored record, on the source
     // account only — it's money lost to the transfer, not part of what
@@ -18110,7 +18291,173 @@ body.light .transaction-modal.as-page #txKindGroup select{
     closeTransferModal();
     const returnAcctId = form.dataset.returnAcct;
     if(returnAcctId) openBankAccountView(returnAcctId); else openBankWalletView();
-    showAppStatusToast('Transfer complete', { detail: `${fromAcct.title} → ${toAcct.title} · ${formatMoneyValue(amount, true)}${fee > 0 ? ` (+${formatMoneyValue(fee, true)} fee)` : ''}`, kind: 'transfer' });
+    showAppStatusToast('Transfer complete', { detail: `${fromAcct.title} → ${toAcct.title} · ${formatMoneyValue(amount, true)}${fee > 0 ? ` (+${formatMoneyValue(fee, true)} fee)` : ''}${viaUnlock ? ' · routed into buckets' : ''}`, kind: 'transfer' });
+  }
+
+  // ── Unlock Savings (source-account Savings → Spendable, before a Transfer) ──
+  // Locked Savings in a bank/wallet account can't be transferred directly —
+  // Transfer only ever moves Spendable. This lets the person free up part
+  // (or all) of an account's locked Savings first, choosing whether the
+  // unlocked amount comes back out of the buckets evenly (Auto-split, same
+  // % shape as when it went in) or from one specific bucket they pick —
+  // mirroring the Auto-split / Send to one bucket choice already used for
+  // Top Up. Freed money becomes Spendable and is then transferable as usual.
+  let _unlockRoute = 'auto';
+  function buildUnlockRoutePills(sel){
+    const db = ensureIncomeAllocationDB();
+    _unlockRoute = (sel && (sel === 'auto' || (db.incBd||[]).some(b => b.id === sel))) ? sel : 'auto';
+    // Once more than one bucket holds part of the locked balance, unlocking
+    // always takes everything out of every one of them — there's no "just
+    // this one bucket" choice left to make, so the route picker itself is
+    // hidden and the route is pinned to 'auto' (all buckets, in full).
+    const routeWrap = document.getElementById('ulRouteWrap');
+    const unlockForm = document.getElementById('unlockSavingsForm');
+    const forceFull = unlockForm && unlockForm.dataset.forceFull === 'true';
+    if(routeWrap) routeWrap.style.display = forceFull ? 'none' : '';
+    if(forceFull){ _unlockRoute = 'auto'; return; }
+    const container = document.getElementById('ulRoutePills');
+    if(!container) return;
+    container.innerHTML = `
+      <div class="if-route-card${_unlockRoute==='auto'?' active':''}" data-route="auto">
+        <div class="if-route-card-head"><span class="if-route-card-title">Auto-split</span><span class="if-radio-dot"></span></div>
+        <div class="if-route-card-desc">Pulled back evenly from your saved buckets by their set %.</div>
+      </div>
+      <div class="if-route-card${_unlockRoute!=='auto'?' active':''}" data-route="single">
+        <div class="if-route-card-head"><span class="if-route-card-title">Send to one bucket</span><span class="if-radio-dot"></span></div>
+        <div class="if-route-card-desc">Full amount is pulled back from a single bucket you choose.</div>
+      </div>`;
+    container.querySelectorAll('.if-route-card').forEach(el => {
+      el.addEventListener('click', () => {
+        if(el.dataset.route === 'auto'){
+          _unlockRoute = 'auto';
+        } else {
+          const sel2 = document.getElementById('ulSingleBucketSelect');
+          _unlockRoute = (sel2 && sel2.value) || ((db.incBd||[])[0] && db.incBd[0].id) || 'auto';
+        }
+        container.querySelectorAll('.if-route-card').forEach(c => c.classList.toggle('active', c === el));
+        document.getElementById('ulSingleBucketWrap').classList.toggle('show', el.dataset.route === 'single');
+      });
+    });
+    const singleSel = document.getElementById('ulSingleBucketSelect');
+    if(singleSel){
+      singleSel.innerHTML = (db.incBd||[]).map(b => `<option value="${b.id}"${_unlockRoute===b.id?' selected':''}>${b.name}</option>`).join('');
+      singleSel.onchange = () => { _unlockRoute = singleSel.value; };
+    }
+    document.getElementById('ulSingleBucketWrap').classList.toggle('show', _unlockRoute !== 'auto');
+  }
+  function updateUnlockSavingsPreview(){
+    const form = document.getElementById('unlockSavingsForm');
+    const preview = document.getElementById('unlockSavingsPreview');
+    if(!form || !preview) return;
+    const acct = getBankAccounts().find(a => bwAcctId(a) === form.dataset.acctId);
+    if(!acct){ preview.innerHTML = ''; return; }
+    const amt = Math.min(normalizeAmount(form.usAmount.value), bwSavings(acct));
+    const spNow = bwSpendable(acct), spAfter = spNow + amt;
+    const lockNow = bwSavings(acct), lockAfter = Math.max(0, lockNow - amt);
+    preview.innerHTML = `
+      <div class="tbp-row"><span class="tbp-label">Spendable</span><span class="tbp-value tbp-new up">${formatMoneyValue(spNow, true)} → ${formatMoneyValue(spAfter, true)}</span></div>
+      <div class="tbp-row"><span class="tbp-label">Locked in Savings</span><span class="tbp-value tbp-new down">${formatMoneyValue(lockNow, true)} → ${formatMoneyValue(lockAfter, true)}</span></div>
+    `;
+  }
+  function openUnlockSavingsModal(acctId){
+    const acct = getBankAccounts().find(a => bwAcctId(a) === acctId);
+    if(!acct) return;
+    const locked = bwSavings(acct);
+    if(locked <= 0){
+      showAppStatusToast('Nothing locked', { detail: `${acct.title} has no locked Savings to unlock.`, kind: 'danger' });
+      return;
+    }
+    const modal = document.getElementById('unlockSavingsModal');
+    const form = document.getElementById('unlockSavingsForm');
+    if(!modal || !form) return;
+    form.reset();
+    form.dataset.acctId = acctId;
+    // When the locked balance is spread across more than one bucket,
+    // there's no partial "unlock $X of it" — every bucket's slice of this
+    // account's Savings becomes transferable at once, so the amount is
+    // fixed at the full locked total instead of left editable.
+    const db0 = ensureIncomeAllocationDB();
+    const lockedBd0 = (db0.incBd||[]).filter(b => b.role !== 'expenses' && !/^exp/i.test(b.name||''));
+    const forceFull = lockedBd0.length > 1;
+    form.dataset.forceFull = forceFull ? 'true' : 'false';
+    document.getElementById('unlockSavingsSub').textContent = `${acct.title} · ${formatMoneyValue(locked, true)} locked`;
+    form.usAmount.max = locked;
+    form.usAmount.value = locked;
+    if(form.usAmount) form.usAmount.readOnly = forceFull;
+    const fullNote = document.getElementById('unlockSavingsFullNote');
+    if(fullNote) fullNote.textContent = forceFull
+      ? `Locked across ${lockedBd0.length} buckets — unlocking releases all of it, not just part.`
+      : '';
+    buildUnlockRoutePills('auto');
+    updateUnlockSavingsPreview();
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    setTimeout(() => form.usAmount.focus(), 50);
+  }
+  function closeUnlockSavingsModal(){
+    const modal = document.getElementById('unlockSavingsModal');
+    if(!modal) return;
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+  }
+  function saveUnlockSavings(e){
+    e.preventDefault();
+    const form = e.target;
+    const acct = getBankAccounts().find(a => bwAcctId(a) === form.dataset.acctId);
+    if(!acct) return;
+    const locked = bwSavings(acct);
+    const forceFull = form.dataset.forceFull === 'true';
+    // More than one bucket holding part of this account's locked Savings
+    // means there's no such thing as unlocking "some" of it — all of that
+    // allocation becomes transferable together, so the full locked balance
+    // is used regardless of whatever was typed into the amount field.
+    const amount = forceFull ? locked : Math.min(normalizeAmount(form.usAmount.value), locked);
+    if(!amount || amount <= 0){
+      showAppStatusToast('Enter a valid amount', { kind: 'danger' });
+      return;
+    }
+    const notes = form.usNotes ? form.usNotes.value.trim() : '';
+    // Move the amount from locked Savings to Spendable on the account itself.
+    bwSetSpendable(acct, bwSpendable(acct) + amount);
+    // Mirror the release in the global Income Allocation buckets so the
+    // bucket totals stay consistent with what's now actually unlocked,
+    // the same way a Withdrawal already does for a single bucket.
+    const db = ensureIncomeAllocationDB();
+    const route = forceFull ? 'auto' : _unlockRoute;
+    if(forceFull){
+      // Drain every locked bucket to exactly zero instead of subtracting a
+      // proportional share — that guarantees the whole allocation clears
+      // (no fractional residue left behind to double-count later) since
+      // the full locked balance is what's leaving this account.
+      const lockedBd = (db.incBd||[]).filter(b => b.role !== 'expenses' && !/^exp/i.test(b.name||''));
+      lockedBd.forEach(b => { db.incBuckets[b.id] = 0; });
+    } else if(route === 'auto'){
+      const lockedBd = (db.incBd||[]).filter(b => b.role !== 'expenses' && !/^exp/i.test(b.name||''));
+      const weightTotal = lockedBd.reduce((s,b) => s + (Number(b.pct)||0), 0);
+      lockedBd.forEach(b => {
+        const share = weightTotal > 0 ? amount * ((Number(b.pct)||0) / weightTotal) : (amount / (lockedBd.length || 1));
+        db.incBuckets[b.id] = Math.max(0, (db.incBuckets[b.id]||0) - share);
+      });
+    } else {
+      db.incBuckets[route] = Math.max(0, (db.incBuckets[route]||0) - amount);
+    }
+    db.incActions.push({ id:'ia'+Date.now(), type:'unlock', acctId: bwAcctId(acct), route, amount, notes, date: isoDateOf(DASHBOARD_TODAY) });
+    persistIncomeAllocation();
+    if(REAL_DB){ syncBankAccountToRealDb(acct); persistRealDb(); }
+    persistTransactions();
+    closeUnlockSavingsModal();
+    showAppStatusToast('Savings unlocked', { detail: `${formatMoneyValue(amount, true)} moved to Spendable in ${acct.title}`, kind: 'success' });
+    // If this was unlocked from inside the Transfer Funds modal (the only
+    // place Unlock is reachable from), flag that pairing so the transfer
+    // now offers to route into the destination's buckets, same as a Top-up.
+    const transferForm = document.getElementById('transferForm');
+    if(transferForm && transferForm.tfFrom && transferForm.tfFrom.value === form.dataset.acctId){
+      transferForm.dataset.viaUnlock = 'true';
+    }
+    // Refresh whichever view is open behind it — the Transfer modal's
+    // preview (now with more Spendable available) or the account page.
+    if(typeof updateTransferBalancePreview === 'function') updateTransferBalancePreview();
+    if(typeof refreshAfterIncomeChange === 'function') refreshAfterIncomeChange();
   }
 
   // ── Bank/Wallet transaction detail popup ─────────────────────────────
@@ -18173,6 +18520,15 @@ body.light .transaction-modal.as-page #txKindGroup select{
       totalSpendable += bwSpendable(acct);
       getBankAccountTxns(acctId).forEach(t => {
         if((t.date || '').slice(0, 7) !== curYM) return;
+        // Skip transfer legs here: moving money between two of the user's
+        // own accounts nets to zero across the combined total (it leaves
+        // one account and lands in another), so counting the "out" leg
+        // from the source and the "in" leg at the destination would
+        // inflate both this-month totals for money that never actually
+        // entered or left the person's overall balance. A transfer fee
+        // record has no matching leg elsewhere and IS real money lost,
+        // so it's still counted (it isn't tagged as a transfer leg here).
+        if(t.transferGroup && Array.isArray(t.keywords) && t.keywords.includes('transfer')) return;
         const amt = normalizeAmount(t.amount);
         if(t.sign === 'neg') totalOut += amt; else totalIn += amt;
       });
@@ -18323,16 +18679,24 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const [c1,c2] = bwGradientFor(acct.color);
     const bal = normalizeAmount(acct.amount);
 
-    // For the Cash on Hand wallet, a "Top-up — X" row may correspond to an
-    // income entry that was auto-split (or routed to one bucket) — find
-    // that match so the row can expand in place to show the split, right
-    // in the same history the person already opens by clicking the wallet.
-    const incDb = acct.isCash ? ensureIncomeAllocationDB() : null;
+    // A "Top-up — X" row may correspond to an income entry that was
+    // auto-split (or routed to one bucket) — find that match so the row
+    // can expand in place to show the split, right in the same history
+    // the person already opens by clicking the wallet. This now applies
+    // to every bank/wallet account, not just Cash on Hand.
+    const incDb = ensureIncomeAllocationDB();
+    const thisAcctId = bwAcctId(acct);
     function findIncomeEntryForTopup(t){
       if(!incDb || bwTxnType(t) !== 'Top-up') return null;
       const desc = t.title.replace(/^Top-up\s*—\s*/, '');
       const amt = normalizeAmount(t.amount);
-      return (incDb.incEntries||[]).find(e => e.desc === desc && Math.abs(e.amount - amt) < 0.01 && e.date === t.date) || null;
+      return (incDb.incEntries||[]).find(e => {
+        if(e.desc !== desc || Math.abs(e.amount - amt) >= 0.01 || e.date !== t.date) return false;
+        // Make sure the entry actually belongs to THIS account, not just a
+        // same-day/same-amount/same-desc top-up that landed elsewhere.
+        const wasCash = !e.mop || e.mop === 'cash';
+        return wasCash ? !!acct.isCash : (String(e.destAcctId || '') === String(thisAcctId));
+      }) || null;
     }
     function splitSlicesForEntry(e){
       // Prefer the split actually applied at top-up time (e.splitBd) over
@@ -18379,11 +18743,16 @@ body.light .transaction-modal.as-page #txKindGroup select{
       const kind = bwTxnType(t);
       const note = bwTxnNote(t);
       const incEntry = findIncomeEntryForTopup(t);
+      // A routed Transfer (unlocked Savings sent on as a top-up into this
+      // account) carries its own split snapshot right on the transaction —
+      // no income entry to look up, so it expands the same way top-ups do.
+      const routedSlices = Array.isArray(t.splitApplied) && t.splitApplied.length ? t.splitApplied : null;
+      const hasSplit = !!(incEntry || routedSlices);
       const searchText = [t.title, note, kind].join(' ').toLowerCase().replace(/"/g, '');
-      const expandBtn = incEntry
+      const expandBtn = hasSplit
         ? `<svg class="wtx-row-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`
         : '';
-      const mainRow = `<div class="wtx-row" data-txn="${t.id}" data-flow="${isIn ? 'in' : 'out'}" data-search="${searchText}" ${incEntry ? `data-split="${t.id}"` : ''}>
+      const mainRow = `<div class="wtx-row" data-txn="${t.id}" data-flow="${isIn ? 'in' : 'out'}" data-search="${searchText}" ${hasSplit ? `data-split="${t.id}"` : ''}>
         <div class="wtx-row-icon ${isIn ? 'in' : 'out'}">${bwTxnEmoji(t, kind)}</div>
         <div class="wtx-row-body">
           <div class="wtx-row-title-line">${expandBtn}<span class="wtx-row-title">${t.title}</span></div>
@@ -18395,8 +18764,8 @@ body.light .transaction-modal.as-page #txKindGroup select{
         </div>
         <button type="button" class="wtx-row-del ia-icon-btn danger" data-del-txn="${t.id}" title="Delete transaction" aria-label="Delete transaction">🗑</button>
       </div>`;
-      if(!incEntry) return { html: mainRow, date: t.date };
-      const slices = splitSlicesForEntry(incEntry);
+      if(!hasSplit) return { html: mainRow, date: t.date };
+      const slices = incEntry ? splitSlicesForEntry(incEntry) : routedSlices;
       const splitHtml = `<div class="wtx-split-wrap" data-split-panel="${t.id}">
         ${slices.map(s => `<div class="wtx-split-row">
           <div class="wtx-split-dot" style="background:${s.color}"></div>
@@ -18630,6 +18999,13 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const transferAcctForm = document.getElementById('transferForm');
     if(transferAcctForm){
       transferAcctForm.addEventListener('submit', saveTransfer);
+      // Switching "From" (or "To") means whatever was just unlocked no
+      // longer applies to this pairing — drop back to a plain transfer
+      // until Unlock is used again for whichever account is picked now.
+      // Registered before the generic preview listener below so the flag
+      // is already cleared by the time that preview render runs.
+      if(transferAcctForm.tfFrom) transferAcctForm.tfFrom.addEventListener('input', () => { delete transferAcctForm.dataset.viaUnlock; });
+      if(transferAcctForm.tfTo) transferAcctForm.tfTo.addEventListener('input', () => { delete transferAcctForm.dataset.viaUnlock; });
       ['tfFrom','tfTo','tfAmount','tfFee'].forEach(name => {
         const el = transferAcctForm.elements[name];
         if(el) el.addEventListener('input', updateTransferBalancePreview);
@@ -18638,6 +19014,16 @@ body.light .transaction-modal.as-page #txKindGroup select{
     ['transferClose','transferCancel'].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.addEventListener('click', closeTransferModal);
+    });
+
+    const unlockSavingsForm = document.getElementById('unlockSavingsForm');
+    if(unlockSavingsForm){
+      unlockSavingsForm.addEventListener('submit', saveUnlockSavings);
+      if(unlockSavingsForm.usAmount) unlockSavingsForm.usAmount.addEventListener('input', updateUnlockSavingsPreview);
+    }
+    ['unlockSavingsClose','unlockSavingsCancel'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('click', closeUnlockSavingsModal);
     });
 
     const cashTopUpForm = document.getElementById('cashTopUpForm');
@@ -18743,6 +19129,15 @@ body.light .transaction-modal.as-page #txKindGroup select{
       const sv = target.incBd.find(b => /^sav/i.test(b.name || ''));
       if(sv) sv.role = 'savings';
       else target.incBd.unshift({ id:'ibsav' + Date.now(), name:'Savings', pct:0, color:'sage', role:'savings' });
+    }
+    // Expenses is likewise bound to its role the first time it's found by
+    // name, so the binding survives any later rename — exactly like Savings
+    // above. Without this, renaming "Expenses" to anything else silently
+    // lost its identity (it was only ever matched by name), and every
+    // amount that used to land in Expenses fell through to Savings instead.
+    if(!target.incBd.some(b => b.role === 'expenses')){
+      const exp = target.incBd.find(b => /^exp/i.test(b.name || ''));
+      if(exp) exp.role = 'expenses';
     }
     if(!target.incBuckets) target.incBuckets = {};
     target.incBd.forEach(b => { if(target.incBuckets[b.id] === undefined) target.incBuckets[b.id] = 0; });
@@ -18972,11 +19367,12 @@ body.light .transaction-modal.as-page #txKindGroup select{
 
     const entryRows = entries.length ? entries.map(e => {
       const routeLabel = e.route==='auto' ? 'Auto-allocated' : ((db.incBd||[]).find(b=>b.id===e.route)?.name || 'Unrouted');
+      const mopTag = ifMopTag(e);
       return `<div class="ia-entry" data-id="${e.id}">
         <div class="ia-entry-icon">${iaSourceIcon(e.cat)}</div>
         <div class="ia-entry-body">
           <div class="ia-entry-desc">${e.desc}</div>
-          <div class="ia-entry-sub">${iaDate(e.date)} · ${e.cat||'—'}${ifMopLabel(e) ? ' · ' + ifMopLabel(e) : ''}</div>
+          <div class="ia-entry-sub">${iaDate(e.date)} · ${e.cat||'—'}${mopTag ? ` · <span class="ia-mop-tag" style="--mc:${mopTag.color}">${mopTag.label}</span>` : ''}</div>
         </div>
         <div class="ia-entry-amt">
           <div class="ia-entry-money">+${formatMoneyValue(Number(e.amount)||0, true)}</div>
@@ -19306,6 +19702,18 @@ body.light .transaction-modal.as-page #txKindGroup select{
     const base = { bank:'Bank', ewallet:'E-Wallet', cheque:'Cheque' }[e.mop] || '';
     const acct = e.destAcctId ? getBankAccounts().find(a => bwAcctId(a) === e.destAcctId) : null;
     return acct ? `${base} · ${ifEsc(acct.title)}` : base;
+  }
+  // Same source-of-funds text as ifMopLabel, plus the color to render it
+  // with: the Cash on Hand wallet's fixed amber, or the destination
+  // account's own Bank & Wallet color — so this tag always matches how
+  // that account is colored everywhere else in the app.
+  function ifMopTag(e){
+    const label = ifMopLabel(e);
+    if(!label) return null;
+    if(e.mop === 'cash') return { label, color: '#a9832a' };
+    const acct = e.destAcctId ? getBankAccounts().find(a => bwAcctId(a) === e.destAcctId) : null;
+    const color = acct ? bwGradientFor(acct.color)[0] : BW_GRADIENT_FALLBACK[0];
+    return { label, color };
   }
 
   /* ── Add / Edit Income ── */
@@ -20382,7 +20790,14 @@ body.light .transaction-modal.as-page #txKindGroup select{
   function populateTxBankLinkOptions(selectedId){
     const sel = document.getElementById('txBankLink');
     if(!sel || typeof getBankAccounts !== 'function') return;
-    const accounts = getBankAccounts();
+    const accounts = getBankAccounts().filter(a => {
+      // Hide accounts with nothing spendable — there's no money in them to
+      // pay an expense from. Still keep whichever account is already
+      // selected (e.g. editing an older expense), even if it's since been
+      // drained to zero, so the existing selection isn't silently dropped.
+      if(bwSpendable(a) > 0) return true;
+      return selectedId && bwAcctId(a) === selectedId;
+    });
     sel.innerHTML = '<option value="">None</option>' + accounts.map(a => {
       const acctId = bwAcctId(a);
       const spendable = bwSpendable(a);
@@ -21965,6 +22380,14 @@ body.light .transaction-modal.as-page #txKindGroup select{
         <label for="tfFee">Transfer Fee <span class="transaction-field-optional">(optional)</span></label>
         <input id="tfFee" name="tfFee" type="number" min="0" step="0.01" placeholder="0.00">
       </div>
+      <div class="if-field full" id="tfRouteWrap" style="display:none;">
+        <div class="if-label-row"><span class="if-route-label">Route This Transfer</span></div>
+        <div class="if-route-grid" id="tfRoutePills"></div>
+        <div class="if-single-bucket-select" id="tfSingleBucketWrap">
+          <select id="tfSingleBucketSelect"></select>
+        </div>
+        <div class="if-buckets-used" id="tfRouteNote"></div>
+      </div>
       <div class="transaction-field full">
         <label for="tfNotes">Notes</label>
         <input id="tfNotes" name="tfNotes" placeholder="Optional note">
@@ -21981,6 +22404,54 @@ body.light .transaction-modal.as-page #txKindGroup select{
   <div class="modal-close-outside">
     <div class="modal-close-bottom-wrap">
           <button type="button" class="modal-close-bottom" id="transferClose" aria-label="Close">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round">
+              <path d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+          </button>
+          <span class="modal-close-bottom-label">Close</span>
+        </div>
+  </div>
+</div>
+
+<!-- UNLOCK SAVINGS MODAL — frees up part or all of an account's locked
+     Savings into Spendable before a Transfer (Transfer can only ever move
+     Spendable). Opened from the "Unlock" shortcut on the Transfer Funds
+     preview whenever the selected From account has something locked. -->
+<div class="transaction-modal-backdrop" id="unlockSavingsModal" aria-hidden="true">
+  <div class="transaction-modal" role="dialog" aria-modal="true" aria-labelledby="unlockSavingsModalTitle">
+    <div class="transaction-modal-head">
+      <div class="transaction-modal-title" id="unlockSavingsModalTitle">Unlock Savings</div>
+      <div class="transaction-modal-sub" id="unlockSavingsSub"></div>
+    </div>
+    <form class="transaction-form" id="unlockSavingsForm">
+      <div class="transaction-field full">
+        <label for="usAmount">Amount to Unlock *</label>
+        <input id="usAmount" name="usAmount" type="number" min="0.01" step="0.01" required placeholder="0.00">
+        <div class="if-route-card-desc" id="unlockSavingsFullNote" style="margin-top:6px;"></div>
+      </div>
+      <div class="if-field full" id="ulRouteWrap">
+        <div class="if-label-row"><span class="if-route-label">Unlock From</span></div>
+        <div class="if-route-grid" id="ulRoutePills"></div>
+        <div class="if-single-bucket-select" id="ulSingleBucketWrap">
+          <select id="ulSingleBucketSelect"></select>
+        </div>
+      </div>
+      <div class="transaction-field full">
+        <label for="usNotes">Notes</label>
+        <input id="usNotes" name="usNotes" placeholder="Optional note">
+      </div>
+      <div class="transaction-field full">
+        <div class="tx-bank-balance-preview" id="unlockSavingsPreview"></div>
+      </div>
+      <div class="transaction-modal-actions full">
+        <button type="button" class="transaction-cancel" id="unlockSavingsCancel">Cancel</button>
+        <button type="submit" class="transaction-save">Unlock</button>
+      </div>
+    </form>
+          </div>
+  <div class="modal-close-outside">
+    <div class="modal-close-bottom-wrap">
+          <button type="button" class="modal-close-bottom" id="unlockSavingsClose" aria-label="Close">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round">
               <path d="M6 6l12 12M18 6L6 18"/>
             </svg>
@@ -23641,7 +24112,16 @@ window.dlpNowHHMM = window.dlpNowHHMM || function(){
   var PAGE = 80, shown = PAGE, filter = 'all', range = 'day', feed = [], lastFocus = null, prevOverflow = '';
   var RANGE_LABEL = { day:'Today', week:'This week', month:'This month' };
   var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var KIND = { expense:{ i:'🛍️', l:'Expense' }, income:{ i:'💰', l:'Income' }, debt:{ i:'📉', l:'Debt payment' }, bill:{ i:'💡', l:'Bill' }, fee:{ i:'🏦', l:'Fee' } };
+  var KIND = { expense:{ i:'🛍️', l:'Expense' }, income:{ i:'💰', l:'Income' }, debt:{ i:'📉', l:'Debt payment' }, bill:{ i:'💡', l:'Bill' }, fee:{ i:'🏦', l:'Fee' }, transfer:{ i:'🔁', l:'Transfer' } };
+  // A record is one leg of a same-account-owner transfer (not a fee leg —
+  // see kindOf below) when saveTransfer/top-up wrote it: those always set
+  // transferGroup together with keywords:['transfer']. Same test the Bank &
+  // Wallet "In/Out this month" total already uses, and for the same reason:
+  // the money never actually entered or left the person's overall balance,
+  // so it shouldn't inflate Money in / Money out here either.
+  function isTransferLeg(r){
+    return !!(r.transferGroup && Array.isArray(r.keywords) && r.keywords.indexOf('transfer') !== -1);
+  }
   var $ = function(id){ return document.getElementById(id); };
   var esc = function(x){ return String(x == null ? '' : x).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
   var dayKey = function(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
@@ -23668,6 +24148,7 @@ window.dlpNowHHMM = window.dlpNowHHMM || function(){
       var feeText = [r.title, r.sub, (r.keywords||[]).join(' ')].filter(Boolean).join(' ').toLowerCase();
       if(/\bfee\b|charge|penalty|maintenance/.test(feeText)) return 'fee';
     }
+    if(isTransferLeg(r)) return 'transfer';
     if(dir === 'in') return 'income';
     if(r.billLink || r.category === 'bills' || String(r.subCategory || '').toLowerCase() === 'bills') return 'bill';
     return 'expense';
@@ -23789,8 +24270,8 @@ window.dlpNowHHMM = window.dlpNowHHMM || function(){
     }
   }
   function matches(f){
-    if(filter === 'in') return f.dir === 'in';
-    if(filter === 'out') return f.dir === 'out';
+    if(filter === 'in') return f.dir === 'in' && f.kind !== 'transfer';
+    if(filter === 'out') return f.dir === 'out' && f.kind !== 'transfer';
     if(filter === 'debt') return f.kind === 'debt';
     if(filter === 'bill') return f.kind === 'bill';
     return true;
@@ -23820,11 +24301,17 @@ window.dlpNowHHMM = window.dlpNowHHMM || function(){
   function updateCounts(){
     var scoped = feed.filter(inRange);
     var c = { all:scoped.length, 'in':0, out:0, debt:0, bill:0 };
-    scoped.forEach(function(f){ if(f.dir === 'in') c['in']++; else c.out++; if(f.kind === 'debt') c.debt++; if(f.kind === 'bill') c.bill++; });
+    scoped.forEach(function(f){ if(f.kind !== 'transfer'){ if(f.dir === 'in') c['in']++; else c.out++; } if(f.kind === 'debt') c.debt++; if(f.kind === 'bill') c.bill++; });
     [].forEach.call($('tcFilters').children, function(b){ b.textContent = CHIP_LABEL[b.dataset.f] + ' ' + c[b.dataset.f]; });
   }
   function updateSummary(list){
-    var tin = 0, tout = 0; list.forEach(function(f){ if(f.dir === 'in') tin += f.amt; else tout += f.amt; });
+    // Wash transfers between the person's own accounts (kind 'transfer')
+    // are excluded here the same way — each one shows up as both an 'in'
+    // leg and an 'out' leg, and counting both would make Money in / Money
+    // out keep climbing every time the person just moves money between
+    // their own accounts, even though nothing new actually came in or went
+    // out. A transfer FEE is a different kind ('fee') and still counts.
+    var tin = 0, tout = 0; list.forEach(function(f){ if(f.kind === 'transfer') return; if(f.dir === 'in') tin += f.amt; else tout += f.amt; });
     var net = tin - tout, n = $('tcNet');
     $('tcIn').textContent = money(tin); $('tcOut').textContent = money(tout);
     n.textContent = (net < 0 ? '−' : '+') + money(Math.abs(net)); n.style.color = net < 0 ? 'var(--tc-red)' : 'var(--sage)';
