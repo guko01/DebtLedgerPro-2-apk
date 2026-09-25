@@ -18501,19 +18501,16 @@ body.light .transaction-modal.as-page #txKindGroup select{
 
     vaultResults.querySelectorAll('.wtx-row[data-txn]').forEach(row => {
       row.addEventListener('click', () => {
+        // Clicking a transaction row no longer opens the detail modal, on
+        // any account — only the split breakdown (for In top-ups that have
+        // one) still expands in place.
         if(row.dataset.split){
           const panel = vaultResults.querySelector(`.wtx-split-wrap[data-split-panel="${row.dataset.split}"]`);
           if(panel){
             row.classList.toggle('wtx-row-expanded');
             panel.classList.toggle('open');
-            return;
           }
         }
-        // Out transactions no longer open the detail view on click — only
-        // In transactions do (and only In top-ups with a split show the
-        // split breakdown, handled above).
-        if(row.dataset.flow === 'out') return;
-        openBwTxnDetail(row.dataset.txn);
       });
     });
     vaultResults.querySelectorAll('.wtx-row-del[data-del-txn]').forEach(btn => {
