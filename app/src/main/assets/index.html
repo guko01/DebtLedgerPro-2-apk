@@ -3392,10 +3392,11 @@
   }
   .transaction-form{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
     gap:13px;
+    min-width:0;
   }
-  .transaction-field{ display:flex; flex-direction:column; gap:6px; }
+  .transaction-field{ display:flex; flex-direction:column; gap:6px; min-width:0; }
   .bwx-field-hint{ font-size:11px; color:var(--bone-dim); line-height:1.4; margin-top:-2px; }
   #bfBalance.is-invalid{ border-color:var(--rust); box-shadow:0 0 0 1px var(--rust); }
   .transaction-field.full{ grid-column:1/-1; }
@@ -3526,7 +3527,7 @@
     color:#FBF6EA !important;
   }
   @media(max-width:620px){
-    .transaction-form{ grid-template-columns:1fr; }
+    .transaction-form{ grid-template-columns:minmax(0,1fr); }
     .transaction-field.full{ grid-column:auto; }
     .transaction-actions{ margin-left:0; margin-top:7px; }
   }
@@ -5231,6 +5232,65 @@ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
     transform:translate(calc(var(--tx) * .82), calc(var(--ty) * .82)) scale(1);
   }
 }
+
+/* ── Mobile expense amount sizing ─────────────────────────────────────
+   Make the entered expense amount much more prominent and give the
+   amount row enough horizontal room for larger values on phones. */
+@media (max-width:560px){
+  .transaction-modal .amount-hero-field{
+    width:100%;
+    padding:10px 0 6px;
+  }
+  .transaction-modal .amount-hero-field .tx-amount-input-wrap{
+    width:100%;
+    min-height:88px;
+    padding:10px 4px 4px;
+    justify-content:center;
+    gap:2px;
+  }
+  .transaction-modal .amount-hero-field .tx-amount-cur-symbol{
+    flex:0 0 auto;
+    font-size:44px !important;
+    line-height:1;
+    margin-right:5px;
+  }
+  .transaction-modal .amount-hero-field input#txAmount{
+    flex:1 1 auto;
+    min-width:0;
+    width:auto;
+    max-width:none;
+    font-size:78px !important;
+    line-height:.95;
+    letter-spacing:-.035em;
+  }
+  .transaction-modal .amount-hero-field .tx-amount-calc-toggle{
+    flex:0 0 42px;
+    width:42px;
+    height:42px;
+    margin-left:7px;
+  }
+}
+
+@media (max-width:380px){
+  .transaction-modal .amount-hero-field .tx-amount-input-wrap{
+    min-height:82px;
+    padding-left:2px;
+    padding-right:2px;
+  }
+  .transaction-modal .amount-hero-field .tx-amount-cur-symbol{
+    font-size:39px !important;
+  }
+  .transaction-modal .amount-hero-field input#txAmount{
+    font-size:70px !important;
+  }
+  .transaction-modal .amount-hero-field .tx-amount-calc-toggle{
+    flex-basis:40px;
+    width:40px;
+    height:40px;
+    margin-left:5px;
+  }
+}
+
 </style>
 <script id="mobile-friendly-js">
 window.dlpNowHHMM = function(){ var d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); };
@@ -6491,21 +6551,23 @@ body:not(.light) .tx-bank-balance-preview .tbp-new.down{ color:#FF8B70; }
 .tx-bank-balance-preview .tbp-warn{ color:#B23A1E; font-weight:700; }
 body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
 
-.tx-cat-chips{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.tx-cat-chips{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; width:100%; box-sizing:border-box; }
 .tx-cat-chip{
   display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 8px;
   border-radius:14px; border:1.5px solid var(--line); background:var(--panel-2);
   color:var(--bone-dim); font-size:10.5px; cursor:pointer; text-align:center; line-height:1.2;
+  min-width:0; overflow-wrap:anywhere; word-break:break-word;
 }
 .tx-cat-chip .txc-ico{ width:30px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center;
-  font-size:14px; background:rgba(255,255,255,.06); }
+  font-size:14px; background:rgba(255,255,255,.06); flex-shrink:0; }
 body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
 .tx-cat-chip.active{ border-color:#e0ac52; background:rgba(224,172,82,.12); color:var(--bone); }
 .tx-cat-chip.active .txc-ico{ background:linear-gradient(135deg,#e0ac52,#c8863f); }
 .tx-cat-chip.more .txc-ico{ font-size:16px; }
 .tx-cat-more-panel{
-  margin-top:8px; display:none; grid-template-columns:repeat(4,1fr); gap:8px;
+  margin-top:8px; display:none; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px;
   padding:10px; border-radius:14px; background:var(--panel-2); border:1.5px solid var(--line);
+  width:100%; box-sizing:border-box;
 }
 .tx-cat-more-panel.open{ display:grid; }
 
@@ -6530,6 +6592,11 @@ body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
   background:var(--panel-2); border:1.5px solid var(--line); color:var(--brass);
 }
 .amount-hero-field .tx-amount-calc-toggle[aria-expanded="true"]{ background:var(--brass); color:#231607; }
+
+@media (max-width:420px){
+  .amount-hero-field .tx-amount-cur-symbol{ font-size:28px !important; }
+  .amount-hero-field input#txAmount{ font-size:44px !important; max-width:66vw; }
+}
 
 .tbp-kpi.tx-bank-balance-preview{
   grid-column:1/-1; border-radius:18px; padding:16px 18px; margin-top:2px;
@@ -6610,6 +6677,43 @@ body.light .util-panel input,
 body.light .util-panel select,
 body.light .sol-sim-field input{
   background:transparent !important;
+}
+
+/* ── Bigger type on phone-width screens for the transaction form ──────
+   TYPE/CATEGORY field labels, the Type dropdown, and the category chip
+   labels/icons (Aliyah, Bills, Debt, More) were sized for a roomy
+   desktop panel and read as noticeably small on an actual phone. On
+   narrow screens, bump each of these up a size so the form is as easy
+   to read on mobile as it is on desktop. */
+@media (max-width:560px){
+  .transaction-modal .transaction-field label,
+  .transaction-modal .field-card .transaction-field label{
+    font-size:12.5px;
+  }
+  .transaction-modal .transaction-field input,
+  .transaction-modal .transaction-field select,
+  .transaction-modal .field-card .transaction-field input,
+  .transaction-modal .field-card .transaction-field select{
+    font-size:15px;
+  }
+  .transaction-modal .tx-cat-chip{
+    font-size:12.5px;
+    padding:12px 4px 10px;
+  }
+  .transaction-modal .tx-cat-chip .txc-ico{
+    width:36px; height:36px; font-size:17px;
+  }
+  .transaction-modal .tx-cat-chip.more .txc-ico{ font-size:19px; }
+  .amount-hero-field .tx-amount-cur-symbol,
+  .amount-hero-field .tx-amount-cur-symbol#txAmountCurSymbol{
+    font-size:40px !important;
+  }
+  .amount-hero-field input#txAmount,
+  input.amount-hero-field#txAmount,
+  #txAmount.amount-hero-field,
+  input#txAmount{
+    font-size:70px !important;
+  }
 }
 </style><div class="wrap splash" id="wrap">
   <div class="splash-box" id="splashBox">
@@ -6837,21 +6941,23 @@ body:not(.light) .tx-bank-balance-preview .tbp-new.down{ color:#FF8B70; }
 .tx-bank-balance-preview .tbp-warn{ color:#B23A1E; font-weight:700; }
 body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
 
-.tx-cat-chips{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.tx-cat-chips{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; width:100%; min-width:0; box-sizing:border-box; }
 .tx-cat-chip{
   display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 8px;
   border-radius:14px; border:1.5px solid var(--line); background:var(--panel-2);
   color:var(--bone-dim); font-size:10.5px; cursor:pointer; text-align:center; line-height:1.2;
+  min-width:0; overflow-wrap:anywhere; word-break:break-word;
 }
 .tx-cat-chip .txc-ico{ width:30px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center;
-  font-size:14px; background:rgba(255,255,255,.06); }
+  font-size:14px; background:rgba(255,255,255,.06); flex-shrink:0; }
 body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
 .tx-cat-chip.active{ border-color:#e0ac52; background:rgba(224,172,82,.12); color:var(--bone); }
 .tx-cat-chip.active .txc-ico{ background:linear-gradient(135deg,#e0ac52,#c8863f); }
 .tx-cat-chip.more .txc-ico{ font-size:16px; }
 .tx-cat-more-panel{
-  margin-top:8px; display:none; grid-template-columns:repeat(4,1fr); gap:8px;
+  margin-top:8px; display:none; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px;
   padding:10px; border-radius:14px; background:var(--panel-2); border:1.5px solid var(--line);
+  width:100%; box-sizing:border-box;
 }
 .tx-cat-more-panel.open{ display:grid; }
 
@@ -6876,6 +6982,11 @@ body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
   background:var(--panel-2); border:1.5px solid var(--line); color:var(--brass);
 }
 .amount-hero-field .tx-amount-calc-toggle[aria-expanded="true"]{ background:var(--brass); color:#231607; }
+
+@media (max-width:420px){
+  .amount-hero-field .tx-amount-cur-symbol{ font-size:28px !important; }
+  .amount-hero-field input#txAmount{ font-size:44px !important; max-width:66vw; }
+}
 
 .tbp-kpi.tx-bank-balance-preview{
   grid-column:1/-1; border-radius:18px; padding:16px 18px; margin-top:2px;
@@ -20287,13 +20398,16 @@ body.light .transaction-modal.as-page #txKindGroup select{
   // the linked Bank/Wallet Source — updates as the amount, sign (Type),
   // or selected account change, so the effect on that account's balance
   // is visible before saving. Mirrors the +/- math applied on save.
-  // Keeps a long typed amount on one line inside its max-width by shrinking
-  // the hero font (down to a 28px floor) instead of overflowing or wrapping.
+  // The amount and its ₱ symbol are fixed-size (60px / 34px, set in CSS) —
+  // no auto-shrinking. A long typed amount simply scrolls within the
+  // input's own max-width like any normal text field, instead of the
+  // font size changing as you type.
   function fitTxAmountInput(){
     const el = document.getElementById('txAmount');
-    if(el && typeof iaFitText === 'function') iaFitText(el, 28);
+    if(el) el.style.fontSize = '';
+    const sym = document.getElementById('txAmountCurSymbol');
+    if(sym) sym.style.fontSize = '';
   }
-  window.addEventListener('resize', () => { if(document.getElementById('txAmount')) fitTxAmountInput(); });
   function updateTxBankBalancePreview(){
     fitTxAmountInput();
     applyTxAmountColor();
