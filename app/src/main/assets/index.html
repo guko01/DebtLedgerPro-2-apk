@@ -733,7 +733,8 @@
     opacity:0; max-height:0; margin-top:0; pointer-events:none;
   }
   .cat-chip{
-    display:flex; align-items:center; gap:6px;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    min-width:132px; box-sizing:border-box;
     font-size:12px; font-weight:600; color:var(--bone-dim);
     background:linear-gradient(180deg, #232C40, #161D2C);
     border:var(--border-w) solid var(--line); border-radius:999px;
@@ -828,10 +829,88 @@
   }
   .result-datetime::before{ content:'·'; margin-right:6px; opacity:0.6; }
   .result-amt{
-    font-size:17px; font-weight:700; color:var(--bone); white-space:nowrap;
+    font-size:19px; font-weight:800; color:var(--bone); white-space:nowrap;
   }
   .result-amt.neg{ color:var(--rust); }
   .result-amt.pos{ color:var(--sage); }
+  /* ── Expense tags: user-colored labels on each result row ── */
+  .result-tags{
+    display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;
+  }
+  .rtag{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:10px; font-weight:700; letter-spacing:0.02em;
+    padding:3px 9px 3px 7px; border-radius:7px;
+    border:1px solid currentColor; background:color-mix(in srgb, currentColor 16%, transparent);
+    cursor:pointer; user-select:none;
+  }
+  .rtag .rtag-dot{ width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  body.light .rtag{ filter:brightness(0.68) saturate(1.25); background:transparent; }
+  .rtag-add{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; border-radius:7px; flex-shrink:0;
+    border:1px dashed var(--line); color:var(--bone-dim); background:transparent;
+    cursor:pointer; font-size:13px; line-height:1;
+  }
+  .rtag-add:hover{ border-color:var(--brass-dim); color:var(--brass); }
+  /* Tag filter bar, sits directly above the results list */
+  .tag-filterbar{
+    display:none; gap:8px; padding:10px 16px; overflow-x:auto;
+    border-bottom:var(--border-w) solid var(--line-soft);
+    scrollbar-width:none;
+  }
+  .tag-filterbar::-webkit-scrollbar{ display:none; }
+  .tag-filterbar.show{ display:flex; }
+  .tf-chip{
+    flex:0 0 auto; padding:6px 12px; border-radius:999px; font-size:11px; font-weight:700;
+    white-space:nowrap; display:flex; align-items:center; gap:6px; cursor:pointer;
+    border:1px solid var(--line); color:var(--bone-dim); background:transparent;
+  }
+  .tf-chip .rtag-dot{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .tf-chip.active{ color:inherit; border-color:currentColor; background:color-mix(in srgb, currentColor 14%, transparent); }
+  body.light .tf-chip.active{ filter:brightness(0.68) saturate(1.25); background:transparent; }
+  .tf-chip.tf-manage{ border-style:dashed; color:var(--bone-dim); }
+  .vault-results[data-tag-filter]:not([data-tag-filter=""]) .result-item:not(.tf-match){ display:none; }
+  /* Tag picker / manager modal */
+  .tag-modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
+    align-items:center; justify-content:center; z-index:9999; padding:20px;
+  }
+  .tag-modal-backdrop.show{ display:flex; }
+  .tag-modal{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:16px;
+    padding:18px; width:100%; max-width:320px; max-height:80vh; overflow:auto;
+  }
+  body.light .tag-modal{ background:#FFFFFF; }
+  .tag-modal h3{ margin:0 0 12px; font-size:14px; color:var(--bone); }
+  .tag-modal-row{
+    display:flex; align-items:center; gap:10px; padding:8px 4px; border-radius:8px; cursor:pointer;
+  }
+  .tag-modal-row:hover{ background:rgba(255,255,255,.04); }
+  body.light .tag-modal-row:hover{ background:rgba(0,0,0,.03); }
+  .tag-modal-swatch{ width:15px; height:15px; border-radius:5px; flex-shrink:0; }
+  .tag-modal-row span{ flex:1; font-size:12.5px; color:var(--bone); }
+  .tag-modal-check{ width:15px; height:15px; border-radius:50%; border:1.5px solid var(--line); flex-shrink:0; }
+  .tag-modal-check.on{ background:var(--brass); border-color:var(--brass); }
+  .tag-modal-divider{ height:1px; background:var(--line); margin:10px 0; }
+  .tag-modal-newlabel{ font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--bone-dim); margin-bottom:6px; }
+  .tag-color-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .tag-color-dot{ width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+  .tag-color-dot.sel{ border-color:var(--bone); }
+  .tag-new-form{ display:flex; gap:8px; }
+  .tag-new-input{
+    flex:1; background:var(--ink); border:1px solid var(--line); border-radius:8px;
+    padding:8px 10px; color:var(--bone); font-size:12.5px;
+  }
+  .tag-new-add{
+    background:var(--brass); color:var(--ink); border:none; border-radius:8px;
+    padding:8px 12px; font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .tag-modal-close{
+    display:block; width:100%; margin-top:14px; background:transparent;
+    border:1px solid var(--line); border-radius:8px; padding:8px; color:var(--bone-dim);
+    font-size:12px; cursor:pointer;
+  }
   .vault-results-empty{
     padding:18px 16px; font-size:12px; color:var(--bone-dim); text-align:center;
   }
@@ -2777,7 +2856,7 @@
   }
   .quick-add-fab-stage{
     position:relative;
-    width:52px; height:52px;
+    width:66px; height:66px;
   }
   /* Same pulsing ring as the search bar's live-status dot (dotPulse,
      defined above), scaled up to wrap the round button. Lives on the
@@ -2791,7 +2870,7 @@
     position:absolute; inset:0;
     border-radius:50%;
     --dot-rgb: var(--dot-green-rgb);
-    --pulse-scale:1.35;              /* 52px button -> ~9px halo */
+    --pulse-scale:1.28;              /* 66px button -> ~9px halo */
     background:rgba(var(--dot-rgb),0.55);
     will-change:transform, opacity;
     animation: dotPulse 1.8s ease-out infinite;
@@ -2799,7 +2878,7 @@
   }
   .quick-add-fab{
     display:flex; align-items:center; justify-content:center;
-    width:52px; height:52px;
+    width:66px; height:66px;
     border-radius:50%;
     color:#fff;
     cursor:pointer;
@@ -2813,7 +2892,7 @@
     border-color: rgba(255,255,255,0.28);
   }
   .quick-add-fab:hover{ transform:scale(1.05); }
-  .quick-add-fab svg{ width:20px; height:20px; position:relative; z-index:1; transition:transform .3s ease; }
+  .quick-add-fab svg{ width:26px; height:26px; position:relative; z-index:1; transition:transform .3s ease; }
   .quick-add-fab-wrap.open .quick-add-fab svg{ transform:rotate(135deg); }
 
   /* Each item starts collapsed to a dot at the FAB's own center, then
@@ -4526,9 +4605,24 @@
     transform:translateX(102%); transition:transform .34s cubic-bezier(.2,.8,.2,1);
   }
   .tc-wrap.open .tc-sheet{ transform:none; }
+  /* Above 480px, this drops as a corner-anchored floating popup — like a
+     Messenger chat window — instead of a full-screen sheet: it opens right
+     under the round button that triggers it, the backdrop stays see-through
+     (just there to catch an outside click to close), and the rest of the
+     app stays visible and usable behind it. Below 480px there's no room for
+     a floating window, so it stays the original full-screen sheet. */
   @media (min-width:481px){
-    .tc-wrap{ align-items:center; justify-content:flex-end; padding-right:24px; }
-    .tc-sheet{ height:min(calc(100% - 40px), 640px); border-radius:28px; border:1px solid var(--line); box-shadow:0 40px 80px -30px rgba(0,0,0,.75); }
+    .tc-wrap{ align-items:flex-start; justify-content:flex-end; padding:84px 24px 24px 0; }
+    .tc-scrim{ background:transparent; }
+    .tc-sheet{
+      width:360px; max-width:calc(100vw - 48px); height:min(560px, calc(100% - 108px)); margin-left:0;
+      border-radius:20px 20px 20px 20px; border:1px solid var(--line);
+      box-shadow:0 30px 60px -20px rgba(0,0,0,.75);
+      transform:translateY(-10px) scale(.97); opacity:0;
+      transform-origin:top right;
+      transition:transform .2s cubic-bezier(.2,.8,.2,1), opacity .18s ease;
+    }
+    .tc-wrap.open .tc-sheet{ transform:none; opacity:1; }
   }
   .tc-head{ display:flex; align-items:center; justify-content:flex-start; flex-wrap:nowrap; margin-bottom:0; row-gap:0; gap:10px; padding:calc(env(safe-area-inset-top,0px) + 12px) 12px 10px; background:var(--panel); border-bottom:1px solid var(--line-soft); }
   .tc-back{ flex:none; width:40px; height:40px; padding:0; border:0; border-radius:50%; background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--brass); }
@@ -4710,8 +4804,33 @@ body:not(.keyword-active) .transaction-add-wrap {
   .expense-suggest-count.amt-income{ color:var(--sage); }
   .expense-suggest-chevron{ width:14px; height:14px; stroke:var(--bone-dim); flex-shrink:0; }
 
+  /* Mobile: the row was overflowing sideways (icon + category name pushed
+     past the viewport edge, so only the tail of the label/keywords showed).
+     Constrain every flex child so text wraps/ellipses inside the visible
+     width instead of forcing the row wider than its container. */
+  .expense-suggest{ max-width:100%; box-sizing:border-box; }
+  .expense-suggest-row{ min-width:0; box-sizing:border-box; }
+  @media (max-width:720px){
+    .expense-suggest-row{ gap:9px; padding:10px 12px; }
+    .expense-suggest-icon{ width:28px; height:28px; font-size:14px; }
+    .expense-suggest-hint{ padding:9px 12px 5px; overflow-wrap:anywhere; }
+    .expense-suggest-cat{ font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .expense-suggest-match{ font-size:10.5px; white-space:normal; overflow-wrap:anywhere; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .expense-suggest-count{ font-size:12.5px; }
+  }
+
   /* ── Category modal ── */
   .expense-cat-modal{ width:min(560px,100%); }
+  .expense-cat-modal .transaction-modal-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .expense-cat-modal-x{
+    flex-shrink:0; width:32px; height:32px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.06); border:1px solid var(--line, rgba(255,255,255,0.09));
+    color:var(--bone-dim); cursor:pointer;
+  }
+  .expense-cat-modal-x:hover{ background:rgba(255,255,255,0.12); color:var(--bone); }
+  body.light .expense-cat-modal-x{ background:rgba(0,0,0,0.05); border-color:rgba(0,0,0,0.1); }
+  body.light .expense-cat-modal-x:hover{ background:rgba(0,0,0,0.09); }
   .expense-cat-icon{
     width:38px; height:38px; border-radius:10px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
@@ -5305,9 +5424,9 @@ document.addEventListener('DOMContentLoaded', function(){
   .quick-add-fab-wrap{ margin-top:14px; }
   .vault-hints{ margin-top:0; }
   .vault-hints.show{ margin-top:12px; }
-  .quick-add-fab-stage, .quick-add-fab{ width:44px; height:44px; }
+  .quick-add-fab-stage, .quick-add-fab{ width:56px; height:56px; }
   .quick-add-item{ top:22px; left:22px; }
-  .quick-add-fab svg{ width:18px; height:18px; }
+  .quick-add-fab svg{ width:22px; height:22px; }
 
   /* Dock */
   .dock-icon{ width:30px; height:30px; border-radius:24%; }
@@ -6371,6 +6490,96 @@ body:not(.light) .tx-bank-balance-preview .tbp-new.up{ color:#5FD08A; }
 body:not(.light) .tx-bank-balance-preview .tbp-new.down{ color:#FF8B70; }
 .tx-bank-balance-preview .tbp-warn{ color:#B23A1E; font-weight:700; }
 body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
+
+.tx-cat-chips{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.tx-cat-chip{
+  display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 8px;
+  border-radius:14px; border:1.5px solid var(--line); background:var(--panel-2);
+  color:var(--bone-dim); font-size:10.5px; cursor:pointer; text-align:center; line-height:1.2;
+}
+.tx-cat-chip .txc-ico{ width:30px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:14px; background:rgba(255,255,255,.06); }
+body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
+.tx-cat-chip.active{ border-color:#e0ac52; background:rgba(224,172,82,.12); color:var(--bone); }
+.tx-cat-chip.active .txc-ico{ background:linear-gradient(135deg,#e0ac52,#c8863f); }
+.tx-cat-chip.more .txc-ico{ font-size:16px; }
+.tx-cat-more-panel{
+  margin-top:8px; display:none; grid-template-columns:repeat(4,1fr); gap:8px;
+  padding:10px; border-radius:14px; background:var(--panel-2); border:1.5px solid var(--line);
+}
+.tx-cat-more-panel.open{ display:grid; }
+
+/* ── Add Expense — mockup-style amount hero, field cards, CTA ── */
+.amount-hero-field{ padding:6px 0 4px; }
+.amount-hero-field > label{ display:none; }
+.amount-hero-field .tx-amount-input-wrap{
+  justify-content:center; padding:10px 0 2px; border-bottom:2px solid rgba(224,172,82,.35);
+}
+.amount-hero-field .tx-amount-cur-symbol{
+  position:static; font:700 26px Arial,sans-serif; color:var(--brass); margin-right:4px;
+}
+.amount-hero-field input#txAmount{
+  all:unset; box-sizing:border-box; flex:0 1 auto; min-width:40px; max-width:220px;
+  font:700 44px Arial,sans-serif; letter-spacing:-.02em; color:var(--bone);
+  padding:0 !important; background:none !important; text-align:left;
+}
+.amount-hero-field .tx-amount-calc-toggle{
+  position:static; margin-left:8px; width:38px; height:38px; border-radius:11px;
+  background:var(--panel-2); border:1.5px solid var(--line); color:var(--brass);
+}
+.amount-hero-field .tx-amount-calc-toggle[aria-expanded="true"]{ background:var(--brass); color:#231607; }
+
+.tbp-kpi.tx-bank-balance-preview{
+  grid-column:1/-1; border-radius:18px; padding:16px 18px; margin-top:2px;
+  background:linear-gradient(135deg,rgba(201,162,75,.16),rgba(22,29,44,.4) 65%);
+  border:1.5px solid rgba(201,162,75,.3);
+}
+.tbp-kpi .tbp-value{ font-size:20px; }
+
+.field-card{
+  grid-column:1/-1; display:flex; flex-direction:column; gap:8px;
+  border:none; border-radius:16px; overflow:visible; background:transparent; padding:0;
+}
+.field-card .transaction-field{
+  flex-direction:column; align-items:stretch; gap:5px; padding:12px 14px;
+  background:rgba(7,13,22,.62);
+  border:var(--border-w) solid rgba(155,177,203,.25);
+  border-radius:12px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.35), inset 0 -1px 0 rgba(255,255,255,.03);
+}
+.field-card .transaction-field + .transaction-field{ border-top:var(--border-w) solid rgba(155,177,203,.25); }
+body.light .field-card .transaction-field{
+  background:rgba(255,255,255,.75);
+  border-color:rgba(0,0,0,.14);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.10);
+}
+.field-card .transaction-field label{
+  display:flex; align-items:center; gap:8px; width:100%;
+  text-transform:none; font:600 13.5px Arial,sans-serif; color:var(--bone); letter-spacing:0;
+}
+.field-card .transaction-field label .ficon{
+  width:26px; height:26px; border-radius:9px; background:var(--panel);
+  display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;
+}
+.field-card .transaction-field:has(select) label::after{
+  content:'\203A'; margin-left:auto; color:var(--bone-dim); font-size:16px; line-height:1;
+}
+.field-card .transaction-field input,
+.field-card .transaction-field select,
+.field-card .transaction-field textarea{
+  flex:1 1 auto; border:none; background:transparent; text-align:left; padding:0;
+  margin-left:34px; width:calc(100% - 34px); box-sizing:border-box;
+  font:600 13px Arial,sans-serif; color:var(--bone-dim);
+}
+.field-card .transaction-field select:focus,
+.field-card .transaction-field input:focus{ box-shadow:none; }
+
+.transaction-modal-actions:has(.hero-cta){ flex-direction:column-reverse; align-items:stretch; gap:10px; }
+.transaction-modal-actions:has(.hero-cta) .transaction-cancel{ background:transparent; border:none; text-align:center; }
+.transaction-save.hero-cta{
+  grid-column:1/-1; width:100%; border-radius:16px; padding:15px; font:700 15px Arial,sans-serif;
+  background:linear-gradient(135deg, var(--brass), var(--brass-dim)); color:#1a1408;
+}
 </style><div class="wrap splash" id="wrap">
   <div class="splash-box" id="splashBox">
     <svg viewBox="0 0 160 160" aria-hidden="true"><defs><clipPath id="lc2"><circle cx="80" cy="80" r="54"/></clipPath></defs><rect width="160" height="160" rx="36" fill="#0E1420" stroke="#D6A741" stroke-opacity=".55" stroke-width="3"/><circle cx="80" cy="80" r="54" fill="#D6A741"/><g clip-path="url(#lc2)"><path d="M20 46 H52 V66 H76 V86 H100 V106 H140 V20 H20 Z" fill="#4CC38A"/><path d="M20 46 H52 V66 H76 V86 H100 V106 H140" fill="none" stroke="#0E1420" stroke-width="7" stroke-linejoin="round"/></g></svg>
@@ -6584,6 +6793,179 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
 <footer class="foot">DebtLedger Pro 2026 — Secure License System &nbsp;·&nbsp; © 2025–2026 Designed &amp; developed by <b>Dominic Beltran</b></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"><span class="tmsg"></span></div>
 </div></template>
+<style id="add-expense-mockup-style-live">
+/* Balance / Spendable preview in the transaction form — was pale blue-grey on cream */
+.tx-bank-balance-preview{ font-size:14px; padding:10px 12px; background:var(--panel-2); border:1.5px solid var(--line); }
+body.light .tx-bank-balance-preview{ background:#FFFFFF; border-color:#CFC7B2; }
+.tx-bank-balance-preview .tbp-label{ color:var(--bone-dim); font-weight:600; }
+.tx-bank-balance-preview .tbp-value{ color:var(--bone); font-weight:800; font-size:15px; }
+.tx-bank-balance-preview .tbp-new.up{ color:#1C8A4E; }
+.tx-bank-balance-preview .tbp-new.down{ color:#B23A1E; }
+body:not(.light) .tx-bank-balance-preview .tbp-new.up{ color:#5FD08A; }
+body:not(.light) .tx-bank-balance-preview .tbp-new.down{ color:#FF8B70; }
+.tx-bank-balance-preview .tbp-warn{ color:#B23A1E; font-weight:700; }
+body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
+
+.tx-cat-chips{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.tx-cat-chip{
+  display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 8px;
+  border-radius:14px; border:1.5px solid var(--line); background:var(--panel-2);
+  color:var(--bone-dim); font-size:10.5px; cursor:pointer; text-align:center; line-height:1.2;
+}
+.tx-cat-chip .txc-ico{ width:30px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:14px; background:rgba(255,255,255,.06); }
+body.light .tx-cat-chip .txc-ico{ background:rgba(0,0,0,.05); }
+.tx-cat-chip.active{ border-color:#e0ac52; background:rgba(224,172,82,.12); color:var(--bone); }
+.tx-cat-chip.active .txc-ico{ background:linear-gradient(135deg,#e0ac52,#c8863f); }
+.tx-cat-chip.more .txc-ico{ font-size:16px; }
+.tx-cat-more-panel{
+  margin-top:8px; display:none; grid-template-columns:repeat(4,1fr); gap:8px;
+  padding:10px; border-radius:14px; background:var(--panel-2); border:1.5px solid var(--line);
+}
+.tx-cat-more-panel.open{ display:grid; }
+
+/* ── Add Expense — mockup-style amount hero, field cards, CTA ── */
+.amount-hero-field{ padding:6px 0 4px; }
+.amount-hero-field > label{ display:none; }
+.amount-hero-field .tx-amount-input-wrap{
+  justify-content:center; padding:10px 0 2px; border-bottom:2px solid rgba(224,172,82,.35);
+}
+.amount-hero-field .tx-amount-cur-symbol{
+  position:static; font:700 26px Arial,sans-serif; color:var(--brass); margin-right:4px;
+}
+.amount-hero-field input#txAmount{
+  all:unset; box-sizing:border-box; flex:0 1 auto; min-width:40px; max-width:220px;
+  font:700 44px Arial,sans-serif; letter-spacing:-.02em; color:var(--bone);
+  padding:0 !important; background:none !important; text-align:left;
+}
+.amount-hero-field .tx-amount-calc-toggle{
+  position:static; margin-left:8px; width:38px; height:38px; border-radius:11px;
+  background:var(--panel-2); border:1.5px solid var(--line); color:var(--brass);
+}
+.amount-hero-field .tx-amount-calc-toggle[aria-expanded="true"]{ background:var(--brass); color:#231607; }
+
+.tbp-kpi.tx-bank-balance-preview{
+  grid-column:1/-1; border-radius:18px; padding:16px 18px; margin-top:2px;
+  background:linear-gradient(135deg,rgba(201,162,75,.16),rgba(22,29,44,.4) 65%);
+  border:1.5px solid rgba(201,162,75,.3);
+}
+.tbp-kpi .tbp-value{ font-size:20px; }
+.tbp-kpi .tbp-row:first-child{ margin-bottom:4px; }
+.tbp-kpi .tbp-row:first-child .tbp-value{ font-size:28px; font-weight:800; color:var(--sage); }
+.tbp-kpi .tbp-row:nth-child(2){ font-size:11px; opacity:.7; }
+.tbp-kpi .tbp-row:nth-child(2) .tbp-value{ font-size:12px; }
+
+.field-card{
+  grid-column:1/-1; display:flex; flex-direction:column; gap:8px;
+  border:none; border-radius:16px; overflow:visible; background:transparent; padding:0;
+}
+.field-card .transaction-field{
+  position:relative; flex-direction:column; align-items:stretch; gap:5px; padding:12px 14px;
+  background:rgba(7,13,22,.62);
+  border:var(--border-w) solid rgba(155,177,203,.25);
+  border-radius:12px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.35), inset 0 -1px 0 rgba(255,255,255,.03);
+}
+.field-card .transaction-field + .transaction-field{ border-top:var(--border-w) solid rgba(155,177,203,.25); }
+body.light .field-card .transaction-field{
+  background:rgba(255,255,255,.75);
+  border-color:rgba(0,0,0,.14);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.10);
+}
+body.light .field-card .transaction-field + .transaction-field{ border-top-color:rgba(0,0,0,.14); }
+.field-card .transaction-field label{
+  display:flex; align-items:center; gap:8px; width:100%;
+  text-transform:none; font:600 13.5px Arial,sans-serif; color:var(--bone); letter-spacing:0;
+}
+.field-card .transaction-field label .ficon{
+  width:26px; height:26px; border-radius:9px; background:var(--panel);
+  display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;
+}
+.field-card .transaction-field:has(select) label::after{
+  content:'\203A'; margin-left:auto; color:var(--bone-dim); font-size:16px; line-height:1; pointer-events:none;
+}
+.field-card .transaction-field.is-autofilled label::after{
+  content:'Auto-filled'; margin-left:auto; font-size:10px; font-weight:700; letter-spacing:.03em;
+  text-transform:uppercase; color:var(--brass); background:rgba(224,172,82,.14);
+  padding:3px 9px; border-radius:20px; line-height:1.4;
+}
+.field-card .transaction-field.is-autofilled input{
+  font-style:italic; color:var(--bone-dim); background:transparent; cursor:default;
+}
+.field-card .transaction-field input,
+.field-card .transaction-field select,
+.field-card .transaction-field textarea{
+  flex:1 1 auto; border:none; background:transparent; text-align:left; padding:0;
+  margin-left:34px; width:calc(100% - 34px); box-sizing:border-box;
+  font:600 13px Arial,sans-serif; color:var(--bone-dim);
+}
+/* body.light's own .transaction-field input/select rule outranks this one on
+   pure CSS specificity (more type selectors), which is why every field here
+   was rendering its own boxed pill in light mode instead of sitting flush in
+   the row like dark mode. Restated explicitly for light mode so it wins. */
+body.light .field-card .transaction-field input,
+body.light .field-card .transaction-field select,
+body.light .field-card .transaction-field textarea{
+  border:none; background:transparent; box-shadow:none;
+}
+.field-card .transaction-field textarea{ text-align:left; }
+.field-card .transaction-field select:focus,
+.field-card .transaction-field input:focus{ box-shadow:none; }
+/* Kill the native select arrow since the chevron now lives in the label row. */
+.field-card .transaction-field select{
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  color-scheme:dark; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
+body.light .field-card .transaction-field select{ color-scheme:light; }
+.field-card .transaction-field select option{
+  background:#232a36; color:#c7cedb; padding:8px 12px;
+}
+.field-card .transaction-field select option:checked{
+  background:#2f6fed; color:#fff; font-weight:700;
+}
+.field-card .transaction-field input[type="date"]{ color-scheme:dark; }
+body.light .field-card .transaction-field input[type="date"]{ color-scheme:light; }
+.field-card .transaction-field input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:invert(.7); cursor:pointer;
+}
+body.light .field-card .transaction-field input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:none; cursor:pointer;
+}
+
+.transaction-modal-actions:has(.hero-cta){ flex-direction:column-reverse; align-items:stretch; gap:10px; }
+.transaction-modal-actions:has(.hero-cta) .transaction-cancel{ background:transparent; border:none; text-align:center; }
+.transaction-save.hero-cta{
+  grid-column:1/-1; width:100%; border-radius:16px; padding:15px; font:700 15px Arial,sans-serif;
+  background:linear-gradient(135deg, var(--brass), var(--brass-dim)); color:#1a1408;
+}
+.transaction-save.hero-cta .tx-save-meta{ font-weight:600; opacity:.72; margin-left:2px; }
+
+/* Type field: narrowed so it no longer stretches the full row width; amount field untouched. */
+#txKindGroup{ align-items:flex-start; }
+#txKindGroup select{
+  width:auto; min-width:130px; max-width:170px; align-self:flex-start;
+}
+#txKind option{
+  background:#232a36; color:#c7cedb; padding:8px 12px;
+}
+#txKind option:checked{
+  background:#2f6fed; color:#fff; font-weight:700;
+}
+
+/* Notes as its own rounded card, label hidden like the mockup's plain textarea */
+.notes-card-field > label{ display:none; }
+.notes-card-field textarea{
+  background:var(--panel-2); border:1.5px solid var(--line); border-radius:16px;
+  padding:14px; resize:none;
+}
+
+.transaction-modal.as-page #txKindGroup select{
+  background:transparent;
+}
+body.light .transaction-modal.as-page #txKindGroup select{
+  background:transparent;
+}
+</style>
 <script id="dl-tarsier">
 /* Dancing tarsier that rides along with every toast (status card, bottom pill, licence-gate toast). */
 (function(){
@@ -7817,7 +8199,12 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
 
     <div class="expense-suggest" id="expenseSuggest"></div>
 
+    <div class="tag-filterbar" id="tagFilterBar"></div>
     <div class="vault-results" id="vaultResults"></div>
+  </div>
+
+  <div class="tag-modal-backdrop" id="tagModalBackdrop">
+    <div class="tag-modal" id="tagModalBody"></div>
   </div>
 
 </div>
@@ -8031,6 +8418,56 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     const add = [].find.call(sel.options, o2 => o2.value === '__new__');
     sel.insertBefore(o, add || null);
   }
+  // Renders the top-3-plus-More chip UI on top of the hidden #txCategory
+  // select, so picking a category on the Add Expense/Debt form is a tap
+  // instead of a dropdown — the select stays the real source of truth and
+  // every other code path (save, edit, new-category flow) still reads it.
+  function dlpRenderCatChips(sel){
+    const wrap = document.getElementById('txCatChips');
+    if(!wrap || !sel) return;
+    const opts = Array.from(sel.options).filter(o => o.value && o.value !== '__new__');
+    const selectedVal = sel.value;
+    const selIdx = opts.findIndex(o => o.value === selectedVal);
+    // Keep the selected category visible among the first 3 chips even if
+    // it isn't first in the list.
+    let shown = opts.slice(0, 3);
+    if(selIdx >= 3){ shown = [opts[selIdx], ...opts.slice(0, 2)]; }
+    const rest = opts.filter(o => !shown.includes(o));
+    const kind = sel.dataset.catKind || 'expense';
+    const chipHtml = o => `<div class="tx-cat-chip${o.value === selectedVal ? ' active' : ''}" data-cat-val="${dlpEsc(o.value)}">
+        <div class="txc-ico">${dlpCatIcon(o.value, kind)}</div><span>${dlpEsc(o.value)}</span>
+      </div>`;
+    let html = shown.map(chipHtml).join('');
+    if(rest.length || true){
+      html += `<div class="tx-cat-chip more" id="txCatMoreChip"><div class="txc-ico">＋</div><span>More</span></div>`;
+    }
+    wrap.innerHTML = html;
+    let morePanel = document.getElementById('txCatMorePanel');
+    if(!morePanel){
+      morePanel = document.createElement('div');
+      morePanel.id = 'txCatMorePanel';
+      morePanel.className = 'tx-cat-more-panel';
+      wrap.parentNode.insertBefore(morePanel, wrap.nextSibling);
+    }
+    morePanel.innerHTML = rest.map(chipHtml).join('') +
+      `<div class="tx-cat-chip" data-cat-val="__new__"><div class="txc-ico">✎</div><span>New</span></div>`;
+    wrap.querySelectorAll('.tx-cat-chip[data-cat-val]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        sel.value = chip.dataset.catVal;
+        sel.dispatchEvent(new Event('change'));
+      });
+    });
+    morePanel.querySelectorAll('.tx-cat-chip[data-cat-val]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        sel.value = chip.dataset.catVal;
+        sel.dispatchEvent(new Event('change'));
+        morePanel.classList.remove('open');
+      });
+    });
+    const moreBtn = document.getElementById('txCatMoreChip');
+    if(moreBtn) moreBtn.addEventListener('click', () => morePanel.classList.toggle('open'));
+  }
+
   function dlpFillCatSelect(sel, cats, kind, selected){
     if(!sel) return;
     let h = cats.length ? '' : '<option value="">No category yet</option>';
@@ -8039,10 +8476,11 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     sel.innerHTML = h;
     sel.dataset.catKind = kind;
     sel.dataset.lastVal = sel.value === '__new__' ? '' : sel.value;
+    dlpRenderCatChips(sel);
     if(!sel.dataset.newCatBound){
       sel.dataset.newCatBound = '1';
       sel.addEventListener('change', async () => {
-        if(sel.value !== '__new__'){ sel.dataset.lastVal = sel.value; return; }
+        if(sel.value !== '__new__'){ sel.dataset.lastVal = sel.value; dlpRenderCatChips(sel); return; }
         const k = sel.dataset.catKind || 'expense', prev = sel.dataset.lastVal || '';
         const name = await dlpAddCategory(k);
         const list = k === 'income' ? dlpIncomeCatNames(REAL_DB) : k === 'debt' ? dlpDebtCatNames(REAL_DB) : dlpExpenseCatNames(REAL_DB);
@@ -8589,8 +9027,10 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
 
   document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('expenseCatModalClose');
+    const closeBtnTop = document.getElementById('expenseCatModalCloseTop');
     const modal = document.getElementById('expenseCatModal');
     if(closeBtn) closeBtn.addEventListener('click', closeExpenseCategoryModal);
+    if(closeBtnTop) closeBtnTop.addEventListener('click', closeExpenseCategoryModal);
     if(modal) modal.addEventListener('click', (e) => { if(e.target === modal) closeExpenseCategoryModal(); });
     document.querySelectorAll('#expenseTabs .expense-tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -9444,7 +9884,8 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
           REAL_DB.transactions.push({
             id:'tx_' + c.idPrefix + '_' + Date.now(), type:'expense', date, time:window.dlpNowHHMM(),
             desc:descStr, cat:c.cat, amount:bill,
-            status:'paid', notes:noteStr, debtLink:'', [c.link]:editId
+            status:'paid', notes:noteStr, debtLink:'', [c.link]:editId,
+            tags: utilAutoTagIds(c.label, resName)
           });
         }
       } else if(linkedTx){
@@ -9457,7 +9898,8 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
         REAL_DB.transactions.push({
           id:'tx_' + c.idPrefix + '_' + Date.now(), type:'expense', date, time:window.dlpNowHHMM(),
           desc:descStr, cat:c.cat, amount:bill,
-          status:'paid', notes:noteStr, debtLink:'', [c.link]:id
+          status:'paid', notes:noteStr, debtLink:'', [c.link]:id,
+          tags: utilAutoTagIds(c.label, resName)
         });
       }
     }
@@ -11008,6 +11450,35 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
 
   function normalizeAmount(value){
     return Math.max(0, Number(String(value).replace(/[^0-9.-]/g,'')) || 0);
+  }
+
+  // Formats a raw/partially-typed amount string with thousand-separating
+  // commas while typing is still in progress (keeps a trailing "." or a
+  // still-being-typed decimal tail intact instead of dropping it).
+  function formatAmountDisplay(raw){
+    let str = String(raw == null ? '' : raw).replace(/[^0-9.]/g,'');
+    const dot = str.indexOf('.');
+    let intPart, decPart;
+    if(dot === -1){ intPart = str; decPart = null; }
+    else { intPart = str.slice(0, dot); decPart = str.slice(dot + 1).replace(/\./g,'').slice(0, 2); }
+    intPart = intPart.replace(/^0+(?=\d)/, '');
+    const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return withCommas + (decPart !== null ? '.' + decPart : '');
+  }
+
+  // Re-formats an <input> in place after the user types, preserving caret
+  // position relative to the digits typed (not the commas, which shift).
+  function reformatAmountInput(el){
+    const pos = el.selectionStart == null ? el.value.length : el.selectionStart;
+    const rawCharsBefore = el.value.slice(0, pos).replace(/,/g, '').length;
+    const formatted = formatAmountDisplay(el.value);
+    el.value = formatted;
+    let count = 0, newPos = formatted.length;
+    for(let i = 0; i < formatted.length; i++){
+      if(formatted[i] !== ',') count++;
+      if(count >= rawCharsBefore){ newPos = i + 1; break; }
+    }
+    el.setSelectionRange(newPos, newPos);
   }
 
   // ── App-styled confirm/alert dialog ──────────────────────────────────
@@ -14389,11 +14860,14 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
         ? rec._groupItems.reduce((sum, t) => sum + (normalizeAmount(t.amount) || 0), 0)
         : normalizeAmount(rec.amount);
       const amtDisplay = formatMoneyValue(groupTotal, true);
-      return `<div class="result-item expandable${isKeywordGroup ? ' result-item-keyword' : ''}" data-idx="${i}" data-id="${safeId}" data-category="${rec.category}"${keywordAttr}>
+      const recTagIds = getRecordTagIds(rec);
+      const tagsAttr = recTagIds.join(',');
+      return `<div class="result-item expandable${isKeywordGroup ? ' result-item-keyword' : ''} tf-match" data-idx="${i}" data-id="${safeId}" data-category="${rec.category}" data-tags="${tagsAttr}"${keywordAttr}>
         <div class="result-icon icon-${rec.category}">${meta.icon}</div>
         <div class="result-body">
           <div class="result-title">${rec.title}${isKeywordGroup ? `<span class="result-group-count">×${rec._groupCount}</span>` : ''}</div>
           <div class="result-sub">${isTransferResult(rec) ? `<span class="result-tag result-tag-transfer">${transferBadgeSvg}Transfer</span>` : ''}${rec.category === 'debt' ? '' : `<span class="result-tag">${resultTagLabel(rec)}</span>`}${catTag ? `<span class="result-tag result-tag-cat">${catTag}</span>` : ''}${rec.sub || ''}${formatTxDateTime(rec) ? `<span class="result-datetime">${formatTxDateTime(rec)}</span>` : ''}</div>
+          ${renderRecordTagsRow(rec, safeId)}
         </div>
         <div class="result-amt ${amtClass}">${amtDisplay}</div>
         <div class="transaction-actions">
@@ -16812,7 +17286,15 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     modal.classList.remove('as-page', 'show');
     modal.setAttribute('aria-hidden', 'true');
     if(home) home.insertBefore(modal, (next && next.parentNode === home) ? next : null);
-    if(key === 'expense') editingTransactionId = null;
+    if(key === 'expense'){
+      editingTransactionId = null;
+      // Income has its own dedicated form page, so it never belongs as a
+      // Type choice on the Add Expense page — restore it for the generic
+      // transaction editor, which still opens this same modal to edit any
+      // existing record (including income ones).
+      const incomeOpt = document.getElementById('txKindIncomeOpt');
+      if(incomeOpt) incomeOpt.hidden = false;
+    }
     else if(key === 'debt') editingDebtRecord = null;
     else if(key === 'income') _iaEditId = null;
   }
@@ -16820,6 +17302,10 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     const cfg = FORM_PAGES[key];
     const modal = cfg && document.getElementById(cfg.modalId);
     if(!modal) return false;
+    if(key === 'expense'){
+      const incomeOpt = document.getElementById('txKindIncomeOpt');
+      if(incomeOpt) incomeOpt.hidden = true;
+    }
     if(typeof hideCatChipRow === 'function') hideCatChipRow();
     activateSearchMode();               // also hands back any page / form page already open
     activeDockCategory = null;
@@ -17776,6 +18262,10 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
             return;
           }
         }
+        // Out transactions no longer open the detail view on click — only
+        // In transactions do (and only In top-ups with a split show the
+        // split breakdown, handled above).
+        if(row.dataset.flow === 'out') return;
         openBwTxnDetail(row.dataset.txn);
       });
     });
@@ -19710,26 +20200,53 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
   // transaction's saved fields (opening it for editing) — the amount it
   // was actually saved with should be left alone until the person changes
   // something themselves.
+  // Save button mirrors the mockup: "Save Expense · ₱275.00 · Transport" —
+  // kind + amount + category folded into the CTA itself so there's nothing
+  // left to double-check before tapping it.
+  const TX_KIND_SAVE_LABEL = { expense:'Save Expense', debt:'Save Debt Payment', income:'Save Income' };
+  function updateTxSaveButton(){
+    const form = document.getElementById('transactionForm');
+    const labelEl = document.getElementById('txSaveLabel');
+    const metaEl = document.getElementById('txSaveMeta');
+    if(!form || !labelEl || !metaEl) return;
+    labelEl.textContent = TX_KIND_SAVE_LABEL[form.kind.value] || 'Save Transaction';
+    const amount = normalizeAmount(form.amount.value);
+    const cat = (form.subCategory.value || '').trim();
+    const parts = [];
+    if(amount > 0) parts.push(formatMoneyValue(amount, true));
+    if(cat && cat !== '__new__') parts.push(cat);
+    metaEl.textContent = parts.length ? ' · ' + parts.join(' · ') : '';
+  }
+
   function onTxDebtLinkChange(suppressAutoAmount){
     const form = document.getElementById('transactionForm');
     if(!form) return;
     const kind = form.kind.value;
     const descEl = form.title;
     if(kind !== 'debt'){
+      // Only clear it if WE put it there (leaving Debt Payment). A
+      // description the person actually typed themselves is never touched.
+      if(descEl.dataset.autofilled === '1') descEl.value = '';
+      delete descEl.dataset.autofilled;
       descEl.readOnly = false;
       descEl.style.background = '';
       descEl.style.color = '';
+      descEl.closest('.transaction-field').classList.remove('is-autofilled');
       descEl.placeholder = 'e.g. Monthly BDO payment';
+      updateTxSaveButton();
       return;
     }
     const debtId = form.debtLink.value;
     const debt = VAULT_DB.find(r => String(r.id) === String(debtId));
     descEl.value = debt ? `${debt.title} Payment` : 'Debt Payment';
+    descEl.dataset.autofilled = '1';
     descEl.readOnly = true;
-    descEl.style.background = 'rgba(255,255,255,0.04)';
-    descEl.style.color = 'var(--muted, #9fb0c3)';
+    descEl.style.background = '';
+    descEl.style.color = '';
+    descEl.closest('.transaction-field').classList.add('is-autofilled');
     descEl.placeholder = '';
     if(!suppressAutoAmount) updateTxDebtAmount();
+    updateTxSaveButton();
   }
 
   // Amount = the linked debt's declared monthly due (already reflects
@@ -19752,7 +20269,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     const due = typeof monthlyDueOf === 'function' ? monthlyDueOf(debt) : (normalizeAmount(debt.monthlyPayment) || 0);
     const rebateEl = document.getElementById('txRebate');
     const rebate = Math.max(0, normalizeAmount(rebateEl && rebateEl.value) || 0);
-    form.amount.value = Math.max(0, due - rebate).toFixed(2);
+    form.amount.value = formatAmountDisplay(Math.max(0, due - rebate).toFixed(2));
     if(typeof updateTxBankBalancePreview === 'function') updateTxBankBalancePreview();
   }
 
@@ -19812,7 +20329,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     form.kind.value = kind;
 
     form.title.value = transaction?.title || options.presetTitle || '';
-    form.amount.value = transaction ? normalizeAmount(transaction.amount) : '';
+    form.amount.value = transaction ? formatAmountDisplay(normalizeAmount(transaction.amount)) : '';
     // A new Expense starts dated today and paid from Cash on Hand (both
     // still editable); everything else keeps its own defaults.
     const isNewExpense = !transaction && kind === 'expense';
@@ -19832,7 +20349,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     form.rebate.value = transaction ? normalizeAmount(transaction.rebate || 0) || '' : '';
 
     updateTxKindFields(!!transaction);
-    { const wantCat = transaction?.subCategory || options.presetSubCategory || ''; if(wantCat) dlpEnsureOption(form.subCategory, wantCat); form.subCategory.value = wantCat || form.subCategory.value; }
+    { const wantCat = transaction?.subCategory || options.presetSubCategory || ''; if(wantCat) dlpEnsureOption(form.subCategory, wantCat); form.subCategory.value = wantCat || form.subCategory.value; dlpRenderCatChips(form.subCategory); }
     populateTxDebtLinkOptions(transaction?.debtLink || '');
     onTxDebtLinkChange(!!transaction);
     let defaultSource = transaction?.bankId || '';
@@ -20028,6 +20545,217 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       if(typeof dlpRefreshCurrencyViews === 'function') dlpRefreshCurrencyViews();
     });
   });
+
+  // ══════════════════════════════════════════════════════════════════
+  // ── Expense Tags: user-colored tags on transactions, filterable ──
+  // Tag defs live in REAL_DB.tags [{id,label,color}]. Each transaction
+  // carries t.tags = [tagId,...]. Utility bills linked to a residence
+  // (see elecSaveReading) get auto-tagged with a Utility tag + a
+  // Residence tag so electricity/water bills are identifiable at a
+  // glance and filterable by residence.
+  // ══════════════════════════════════════════════════════════════════
+  const TAG_COLORS = ['#E5484D','#F5A623','#F0D93E','#3DD68C','#5B9EF3','#B27CE0','#EC7BB0','#9CA3AF'];
+
+  function tagEnsureDb(){
+    if(!Array.isArray(REAL_DB.tags)) REAL_DB.tags = [];
+  }
+  function getTagById(id){
+    tagEnsureDb();
+    return REAL_DB.tags.find(tg => tg.id === id) || null;
+  }
+  function findTagByLabel(label){
+    tagEnsureDb();
+    return REAL_DB.tags.find(tg => tg.label.toLowerCase() === String(label).toLowerCase()) || null;
+  }
+  function createTag(label, color){
+    tagEnsureDb();
+    const tag = { id:'tag_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), label:String(label).trim(), color };
+    REAL_DB.tags.push(tag);
+    return tag;
+  }
+  // Used by automated flows (e.g. utility bills) so the same tag is
+  // reused across bills instead of creating a duplicate every save.
+  function ensureAutoTag(label, color){
+    const existing = findTagByLabel(label);
+    if(existing) return existing;
+    const t = createTag(label, color);
+    if(typeof persistRealDb === 'function') persistRealDb();
+    return t;
+  }
+  // A paid Electricity/Water bill linked to a residence gets tagged with
+  // both "Utility · <kind>" (amber) and "Residence: <name>" (blue), so
+  // it's identifiable at a glance and filterable by either in the tag bar.
+  function utilAutoTagIds(kindLabel, residenceName){
+    const utilTag = ensureAutoTag('Utility · ' + kindLabel, '#F5A623');
+    const resTag = ensureAutoTag('Residence: ' + residenceName, '#5B9EF3');
+    return [utilTag.id, resTag.id];
+  }
+  function findTransactionRecord(rec){
+    // rec passed into renderResults may be a merged/group record; the
+    // underlying editable record(s) are in rec._groupItems when grouped,
+    // otherwise rec itself IS the REAL_DB.transactions entry (or has the
+    // same id as one, for records assembled from other sources).
+    if(!rec) return null;
+    if(Array.isArray(REAL_DB.transactions)){
+      const found = REAL_DB.transactions.find(t => t.id === rec.id);
+      if(found) return found;
+    }
+    return rec;
+  }
+  function getRecordTagIds(rec){
+    const items = (Array.isArray(rec._groupItems) && rec._groupItems.length) ? rec._groupItems : [rec];
+    const ids = new Set();
+    items.forEach(it => {
+      const real = findTransactionRecord(it);
+      if(real && Array.isArray(real.tags)) real.tags.forEach(id => ids.add(id));
+    });
+    return Array.from(ids);
+  }
+  function renderRecordTagsRow(rec, safeId){
+    const ids = getRecordTagIds(rec);
+    const chips = ids.map(id => {
+      const tag = getTagById(id);
+      if(!tag) return '';
+      return `<span class="rtag" style="color:${tag.color}" data-tag-open="${safeId}" data-tag-id="${tag.id}"><span class="rtag-dot"></span>${tag.label}</span>`;
+    }).join('');
+    return `<div class="result-tags" data-tags-row="${safeId}">${chips}<button type="button" class="rtag-add" data-tag-add="${safeId}" title="Add tag" aria-label="Add tag">+</button></div>`;
+  }
+
+  // ── Tag picker modal: toggle tags on a transaction, or create a new one ──
+  let _tagModalTargetId = null;
+  let _tagModalColor = TAG_COLORS[0];
+  const tagModalBackdrop = document.getElementById('tagModalBackdrop');
+  const tagModalBody = document.getElementById('tagModalBody');
+
+  function openTagPicker(recId){
+    tagEnsureDb();
+    _tagModalTargetId = recId;
+    _tagModalColor = TAG_COLORS[0];
+    renderTagModal();
+    tagModalBackdrop.classList.add('show');
+  }
+  function closeTagPicker(){
+    tagModalBackdrop.classList.remove('show');
+    _tagModalTargetId = null;
+    // Refresh whatever list is currently on screen so newly (un)checked
+    // tags show up immediately.
+    if(typeof renderResults === 'function' && Array.isArray(vaultCurrentResults)){
+      renderPaginatedResults(vaultCurrentResults, currentPage);
+    }
+    renderTagFilterBar();
+  }
+  function renderTagModal(){
+    const real = REAL_DB.transactions.find(t => t.id === _tagModalTargetId);
+    const activeIds = new Set(real && Array.isArray(real.tags) ? real.tags : []);
+    const rows = REAL_DB.tags.map(tag => `
+      <div class="tag-modal-row" data-toggle-tag="${tag.id}">
+        <div class="tag-modal-swatch" style="background:${tag.color}"></div>
+        <span>${tag.label}</span>
+        <div class="tag-modal-check ${activeIds.has(tag.id) ? 'on' : ''}"></div>
+      </div>`).join('') || `<div style="font-size:12px; color:var(--bone-dim); padding:6px 4px;">No tags yet — add one below.</div>`;
+    const colorDots = TAG_COLORS.map(c => `<div class="tag-color-dot ${c === _tagModalColor ? 'sel' : ''}" style="background:${c}" data-pick-color="${c}"></div>`).join('');
+    tagModalBody.innerHTML = `
+      <h3>Tag this transaction</h3>
+      ${rows}
+      <div class="tag-modal-divider"></div>
+      <div class="tag-modal-newlabel">New tag</div>
+      <div class="tag-color-row">${colorDots}</div>
+      <div class="tag-new-form">
+        <input type="text" class="tag-new-input" id="tagNewLabelInput" placeholder="e.g. Utility · Electricity">
+        <button type="button" class="tag-new-add" id="tagNewAddBtn">Add</button>
+      </div>
+      <button type="button" class="tag-modal-close" id="tagModalCloseBtn">Done</button>
+    `;
+  }
+  tagModalBody.addEventListener('click', (e) => {
+    const toggleEl = e.target.closest('[data-toggle-tag]');
+    if(toggleEl){
+      const tagId = toggleEl.dataset.toggleTag;
+      const real = REAL_DB.transactions.find(t => t.id === _tagModalTargetId);
+      if(real){
+        if(!Array.isArray(real.tags)) real.tags = [];
+        const idx = real.tags.indexOf(tagId);
+        if(idx > -1) real.tags.splice(idx, 1); else real.tags.push(tagId);
+        if(typeof persistRealDb === 'function') persistRealDb();
+      }
+      renderTagModal();
+      return;
+    }
+    const colorEl = e.target.closest('[data-pick-color]');
+    if(colorEl){ _tagModalColor = colorEl.dataset.pickColor; renderTagModal(); return; }
+    if(e.target.id === 'tagNewAddBtn'){
+      const input = document.getElementById('tagNewLabelInput');
+      const label = (input.value || '').trim();
+      if(!label){ showAppStatusToast && showAppStatusToast('Missing name', { detail:'Type a tag name first.', kind:'danger' }); return; }
+      const tag = createTag(label, _tagModalColor);
+      const real = REAL_DB.transactions.find(t => t.id === _tagModalTargetId);
+      if(real){
+        if(!Array.isArray(real.tags)) real.tags = [];
+        real.tags.push(tag.id);
+      }
+      if(typeof persistRealDb === 'function') persistRealDb();
+      renderTagModal();
+      return;
+    }
+    if(e.target.id === 'tagModalCloseBtn'){ closeTagPicker(); return; }
+  });
+  tagModalBackdrop.addEventListener('click', (e) => { if(e.target === tagModalBackdrop) closeTagPicker(); });
+
+  // Clicking a tag chip on a result row opens the picker for that row
+  // (rather than treating it as a filter — filtering happens up in the
+  // filter bar so the two interactions stay distinct).
+  vaultResults.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('[data-tag-add]');
+    if(addBtn){ e.stopPropagation(); openTagPicker(addBtn.dataset.tagAdd); return; }
+    const chip = e.target.closest('[data-tag-open]');
+    if(chip){ e.stopPropagation(); openTagPicker(chip.dataset.tagOpen); return; }
+  });
+
+  // ── Tag filter bar: one tap filters the currently rendered page of
+  // results by tag (client-side, matches the mock). "Manage tags" opens
+  // the same modal in a tag-free state so tags can be renamed... for now
+  // it opens the picker with no target, letting the user create tags
+  // ahead of assigning them. ──
+  let _activeTagFilter = '';
+  const tagFilterBar = document.getElementById('tagFilterBar');
+  function renderTagFilterBar(){
+    tagEnsureDb();
+    if(!REAL_DB.tags.length){ tagFilterBar.classList.remove('show'); tagFilterBar.innerHTML=''; return; }
+    const chips = REAL_DB.tags.map(tag => `
+      <div class="tf-chip ${_activeTagFilter === tag.id ? 'active' : ''}" style="color:${tag.color}" data-filter-tag="${tag.id}">
+        <span class="rtag-dot"></span>${tag.label}
+      </div>`).join('');
+    tagFilterBar.innerHTML = `
+      <div class="tf-chip tf-manage" data-filter-tag="">All</div>
+      ${chips}
+    `;
+    tagFilterBar.classList.add('show');
+    applyTagFilter();
+  }
+  function applyTagFilter(){
+    vaultResults.setAttribute('data-tag-filter', _activeTagFilter);
+    vaultResults.querySelectorAll('.result-item').forEach(row => {
+      const ids = (row.dataset.tags || '').split(',').filter(Boolean);
+      const match = !_activeTagFilter || ids.includes(_activeTagFilter);
+      row.classList.toggle('tf-match', match);
+    });
+  }
+  tagFilterBar.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-filter-tag]');
+    if(!chip) return;
+    _activeTagFilter = chip.dataset.filterTag || '';
+    renderTagFilterBar();
+  });
+
+  // Keep the filter bar's visibility/state in sync whenever a fresh page
+  // of results is drawn (renderResults is defined above in this same
+  // script; wrap it so the bar + row .tf-match state always match what
+  // just got redrawn).
+  const _tagSystemOrigRenderResults = renderResults;
+  renderResults = function(matches){
+    _tagSystemOrigRenderResults(matches);
+    renderTagFilterBar();
+  };
 </script>
 
 <div class="transaction-modal-backdrop" id="transactionModal" aria-hidden="true">
@@ -20036,31 +20764,24 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       <div class="transaction-modal-title" id="transactionModalTitle">Add Transaction</div>
     </div>
     <form class="transaction-form" id="transactionForm">
-      <div class="transaction-field">
+      <div class="transaction-field" id="txKindGroup">
         <label for="txKind">Type *</label>
         <select id="txKind" name="kind">
           <option value="debt">Debt Payment</option>
           <option value="expense">Expense</option>
-          <option value="income">Income / Credit</option>
+          <option value="income" id="txKindIncomeOpt">Income / Credit</option>
         </select>
       </div>
-      <div class="transaction-field">
-        <label for="txDate">Date *</label>
-        <input id="txDate" name="date" type="date">
+      <div class="transaction-field full" id="txCatChipsGroup">
+        <label>Category</label>
+        <div class="tx-cat-chips" id="txCatChips"></div>
+        <select id="txCategory" name="subCategory" style="display:none"></select>
       </div>
-      <div class="transaction-field full">
-        <label for="txTitle">Description *</label>
-        <input id="txTitle" name="title" required placeholder="e.g. Monthly BDO payment">
-      </div>
-      <div class="transaction-field">
-        <label for="txCategory">Category</label>
-        <select id="txCategory" name="subCategory"></select>
-      </div>
-      <div class="transaction-field">
+      <div class="transaction-field full amount-hero-field">
         <label for="txAmount">Amount *</label>
         <div class="tx-amount-input-wrap">
           <span class="tx-amount-cur-symbol" id="txAmountCurSymbol">₱</span>
-          <input id="txAmount" name="amount" type="number" min="0" step="0.01" required placeholder="0.00" autocomplete="off">
+          <input id="txAmount" name="amount" type="text" inputmode="decimal" required placeholder="0.00" autocomplete="off">
           <button type="button" class="tx-amount-calc-toggle" id="txCalcToggle" aria-label="Open calculator" aria-expanded="false">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="4" y="3" width="16" height="18" rx="2.5"/>
@@ -20098,40 +20819,52 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
           </div>
         </div>
       </div>
-      <div class="transaction-field">
-        <label for="txStatus">Status</label>
-        <select id="txStatus" name="status">
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
-          <option value="overdue">Overdue</option>
-        </select>
+      <div id="txBankBalancePreview" class="tx-bank-balance-preview tbp-kpi full" style="display:none"></div>
+      <div class="field-card">
+        <div class="transaction-field full">
+          <label for="txTitle"><span class="ficon">✏️</span>Description *</label>
+          <input id="txTitle" name="title" required placeholder="e.g. Monthly BDO payment">
+        </div>
+        <div class="transaction-field">
+          <label for="txDate"><span class="ficon">📅</span>Date *</label>
+          <input id="txDate" name="date" type="date">
+        </div>
+        <div class="transaction-field">
+          <label for="txBankLink"><span class="ficon">💳</span>Pay from</label>
+          <select id="txBankLink" name="bankLink"><option value="">None</option></select>
+        </div>
+        <div class="transaction-field">
+          <label for="txStatus"><span class="ficon">✅</span>Status</label>
+          <select id="txStatus" name="status">
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
+          </select>
+        </div>
+        <div class="transaction-field" id="txDebtLinkGroup">
+          <label for="txDebtLink"><span class="ficon">🔗</span>Link to Debt</label>
+          <select id="txDebtLink" name="debtLink"><option value="">None</option></select>
+        </div>
+        <div class="transaction-field" id="txRebateGroup" style="display:none">
+          <label for="txRebate"><span class="ficon">💸</span>Rebate <span class="transaction-field-optional">(optional)</span></label>
+          <input id="txRebate" name="rebate" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="transaction-field" id="txPenaltyGroup" style="display:none">
+          <label for="txPenalty"><span class="ficon">⚠️</span>Penalty / Late Fee</label>
+          <input id="txPenalty" name="penalty" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
       </div>
-      <div class="transaction-field" id="txDebtLinkGroup">
-        <label for="txDebtLink">Link to Debt</label>
-        <select id="txDebtLink" name="debtLink"><option value="">None</option></select>
-      </div>
-      <div class="transaction-field" id="txRebateGroup" style="display:none">
-        <label for="txRebate">Rebate <span class="transaction-field-optional">(optional)</span></label>
-        <input id="txRebate" name="rebate" type="number" min="0" step="0.01" placeholder="0.00">
-      </div>
-      <div class="transaction-field" id="txPenaltyGroup" style="display:none">
-        <label for="txPenalty">Penalty / Late Fee</label>
-        <input id="txPenalty" name="penalty" type="number" min="0" step="0.01" placeholder="0.00">
-      </div>
-      <div class="transaction-field">
-        <label for="txBankLink">Bank / Wallet Source</label>
-        <select id="txBankLink" name="bankLink"><option value="">None</option></select>
-        <div id="txBankBalancePreview" class="tx-bank-balance-preview" style="display:none"></div>
-      </div>
-      <div class="transaction-field full">
+      <div class="transaction-field full notes-card-field">
         <label for="txSub">Notes</label>
-        <textarea id="txSub" name="sub" rows="2" placeholder="Optional…"></textarea>
+        <textarea id="txSub" name="sub" rows="2" placeholder="Your notes"></textarea>
       </div>
       <input type="hidden" id="txTime" name="time">
       <input type="hidden" id="txSign" name="sign">
       <div class="transaction-modal-actions full">
         <button type="button" class="transaction-cancel" id="transactionCancel">Cancel</button>
-        <button type="submit" class="transaction-save">Save Transaction</button>
+        <button type="submit" class="transaction-save hero-cta" id="txSaveBtn">
+          <span class="tx-save-label" id="txSaveLabel">Save Expense</span><span class="tx-save-meta" id="txSaveMeta"></span>
+        </button>
       </div>
     </form>
           </div>
@@ -20157,6 +20890,9 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
           <div class="expense-cat-subtitle" id="expenseCatSubtitle"></div>
         </div>
       </div>
+      <button type="button" class="expense-cat-modal-x" id="expenseCatModalCloseTop" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
 
     <div class="expense-total-card">
@@ -21655,7 +22391,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
         : (openedFromCategory || (rec && rec.category) || 'bank');
       const payload = {
         title: form.title.value.trim(),
-        amount: form.amount.value,
+        amount: normalizeAmount(form.amount.value),
         date: form.date.value || undefined,
         // Stamp the moment of logging when no time was set; edits keep their saved time.
         time: form.time.value || (rec ? (rec.time || undefined) : window.dlpNowHHMM()),
@@ -21763,7 +22499,13 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
     });
     const amountInput = document.getElementById('txAmount');
     if(amountInput) amountInput.addEventListener('input', function(){
+      reformatAmountInput(amountInput);
       if(typeof updateTxBankBalancePreview === 'function') updateTxBankBalancePreview();
+      if(typeof updateTxSaveButton === 'function') updateTxSaveButton();
+    });
+    const categorySel = document.getElementById('txCategory');
+    if(categorySel) categorySel.addEventListener('change', function(){
+      if(typeof updateTxSaveButton === 'function') updateTxSaveButton();
     });
 
     (function setupTxAmountCalculator(){
@@ -21790,7 +22532,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
         if(evalStr){
           const result = safeEval(evalStr);
           if(result !== null){
-            amountInput.value = Math.round(result * 100) / 100;
+            amountInput.value = formatAmountDisplay(Math.round(result * 100) / 100);
             if(typeof updateTxBankBalancePreview === 'function') updateTxBankBalancePreview();
           }
         }
@@ -21799,7 +22541,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       function openPanel(){
         panel.hidden = false;
         toggleBtn.setAttribute('aria-expanded','true');
-        expr = (amountInput.value && amountInput.value !== '0') ? String(amountInput.value) : '';
+        expr = (amountInput.value && amountInput.value !== '0') ? String(amountInput.value).replace(/,/g,'') : '';
         render();
       }
       function closePanel(){
@@ -21847,7 +22589,7 @@ body:not(.light) .tx-bank-balance-preview .tbp-warn{ color:#FF8B70; }
       });
 
       amountInput.addEventListener('focus', function(){
-        expr = (amountInput.value && amountInput.value !== '0') ? String(amountInput.value) : '';
+        expr = (amountInput.value && amountInput.value !== '0') ? String(amountInput.value).replace(/,/g,'') : '';
       });
 
       const txModalEl = document.getElementById('transactionModal');
@@ -22858,7 +23600,11 @@ window.dlpNowHHMM = window.dlpNowHHMM || function(){
   function open(){
     lastFocus = document.activeElement; feed = buildFeed(); shown = PAGE;
     wrap.classList.add('open'); wrap.setAttribute('aria-hidden', 'false');
-    prevOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    // Only lock page scroll on the full-screen (mobile) layout — the
+    // desktop floating popup leaves the rest of the app usable behind it.
+    if(window.matchMedia('(max-width:480px)').matches){
+      prevOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    }
     render('bottom');
     setTimeout(function(){ fitAmounts(); thread.scrollTop = thread.scrollHeight; updateJump(); $('tcBack').focus(); }, 60);
     var dial = document.querySelector('.dial.vt');
