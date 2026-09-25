@@ -9318,28 +9318,61 @@ body.light .transaction-modal.as-page #txKindGroup select{
     if(!file) return;
     const reader = new FileReader();
     reader.onload = async e => {
+      // Step 1: parse + shape-check the JSON. Only THIS failure is a
+      // genuinely invalid backup file.
+      let d;
       try{
-        const d = JSON.parse(e.target.result);
-        if(!d.debts || !d.transactions) throw new Error('Invalid format');
-        // Restore the overlay exportDashboardData bundles alongside REAL_DB
-        // (transactions saved only in TX_STORAGE_KEY, their deletions,
-        // payroll runs, dock layout, avatar). A plain-DebtLedgerPro export
-        // (no _dashboardOverlay) or a device with none of these simply
-        // clears them here, rather than letting THIS device's old overlay
-        // linger on top of the freshly imported data.
-        const overlay = (d._dashboardOverlay && typeof d._dashboardOverlay === 'object') ? d._dashboardOverlay : {};
-        delete d._dashboardOverlay;
+        d = JSON.parse(e.target.result);
+      }catch(err){
+        await appAlert('Import failed: this file is not valid JSON.');
+        input.value = '';
+        return;
+      }
+      if(!d.debts || !d.transactions){
+        await appAlert('Import failed: this file is not a valid DebtLedgerPro backup.');
+        input.value = '';
+        return;
+      }
+      // Restore the overlay exportDashboardData bundles alongside REAL_DB
+      // (transactions saved only in TX_STORAGE_KEY, their deletions,
+      // payroll runs, dock layout, avatar). A plain-DebtLedgerPro export
+      // (no _dashboardOverlay) or a device with none of these simply
+      // clears them here, rather than letting THIS device's old overlay
+      // linger on top of the freshly imported data.
+      const overlay = (d._dashboardOverlay && typeof d._dashboardOverlay === 'object') ? d._dashboardOverlay : {};
+      delete d._dashboardOverlay;
+      // Step 2: write the core data. A quota error here is a storage-space
+      // problem, not a bad file, so it gets its own message instead of the
+      // generic "invalid backup" one.
+      try{
         localStorage.setItem(DLP_DB_KEY, JSON.stringify(d));
         localStorage.setItem(TX_STORAGE_KEY, JSON.stringify(Array.isArray(overlay.tx) ? overlay.tx : []));
         localStorage.setItem(TX_DELETED_KEY, JSON.stringify(Array.isArray(overlay.deletedTx) ? overlay.deletedTx : []));
         localStorage.setItem(PAYROLL_RUN_KEY, JSON.stringify(Array.isArray(overlay.payrollRuns) ? overlay.payrollRuns : []));
         if(overlay.dockFavs) localStorage.setItem('dlp_dock_favs_v1', JSON.stringify(overlay.dockFavs));
-        if(overlay.avatar) localStorage.setItem(AVATAR_KEY, overlay.avatar);
-        showDashboardToast ? showDashboardToast('Backup imported — reloading…','success') : null;
-        location.reload();
       }catch(err){
-        await appAlert('Import failed: this file is not a valid DebtLedgerPro backup.');
+        await appAlert('Import failed: your browser\'s local storage is full (quota exceeded), most likely because of a large profile picture bundled in this backup. Try exporting again after removing the profile picture, or free up storage and retry.');
+        input.value = '';
+        return;
       }
+      // Step 3: the avatar photo is stored separately and is the one field
+      // large enough (multi-MB base64 image) to blow the localStorage quota
+      // on its own. Never let that sink an otherwise-successful import:
+      // shrink it and retry, and if it still won't fit, just drop it.
+      if(overlay.avatar){
+        try{
+          localStorage.setItem(AVATAR_KEY, overlay.avatar);
+        }catch(err){
+          try{
+            const resized = await resizeImageDataUrl(overlay.avatar, 400, 0.8);
+            localStorage.setItem(AVATAR_KEY, resized);
+          }catch(err2){
+            try{ localStorage.removeItem(AVATAR_KEY); }catch(err3){}
+          }
+        }
+      }
+      showDashboardToast ? showDashboardToast('Backup imported — reloading…','success') : null;
+      location.reload();
       input.value = '';
     };
     reader.readAsText(file);
@@ -12025,12 +12058,40 @@ body.light .transaction-modal.as-page #txKindGroup select{
   // Profile picture — ported from DebtLedgerPro's Settings → Profile
   // Picture widget (upload/remove, stored locally via localStorage).
   const AVATAR_KEY = 'dlpro_avatar';
-  window.uploadProfilePic = function(input){
+  // Downscales/recompresses a photo before it ever reaches localStorage.
+  // Raw phone-camera photos can be 3-8MB as base64, which alone can exceed
+  // (or nearly exceed) the ~5-10MB per-origin localStorage quota — leaving
+  // almost no room for the rest of the app's data and breaking backup
+  // import/export for that device. Capping to a small square JPEG keeps a
+  // profile picture at a few KB instead.
+  function resizeImageDataUrl(dataUrl, maxDim, quality){
+    return new Promise(resolve => {
+      try{
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if(w > maxDim || h > maxDim){
+            if(w > h){ h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          try{ resolve(canvas.toDataURL('image/jpeg', quality)); }
+          catch(e){ resolve(dataUrl); }
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      }catch(e){ resolve(dataUrl); }
+    });
+  }
+  window.uploadProfilePic = async function(input){
     const file = input.files && input.files[0]; if(!file) return;
     const reader = new FileReader();
-    reader.onload = e => {
-      localStorage.setItem(AVATAR_KEY, e.target.result);
-      _applyAvatar(e.target.result);
+    reader.onload = async e => {
+      const resized = await resizeImageDataUrl(e.target.result, 400, 0.8);
+      try{ localStorage.setItem(AVATAR_KEY, resized); }catch(err){ /* still too big for this device; show it anyway without persisting */ }
+      _applyAvatar(resized);
     };
     reader.readAsDataURL(file);
     input.value = '';
