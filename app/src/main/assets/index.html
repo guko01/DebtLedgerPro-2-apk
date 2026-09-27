@@ -21002,6 +21002,8 @@ body.light .transaction-modal.as-page #txKindGroup select{
       rebateGroup.style.display = 'none';
       form.sign.value = 'pos';
     }
+    const slscTrigger = document.getElementById('slscTriggerGroup');
+    if(slscTrigger) slscTrigger.style.display = (kind === 'expense') ? '' : 'none';
     dlpSyncTxCats();
     const prevCat = catSel.value;
     dlpFillCatSelect(catSel, cats, kind === 'debt' ? 'debt' : (kind === 'expense' ? 'expense' : 'income'), prevCat);
@@ -21518,6 +21520,11 @@ body.light .transaction-modal.as-page #txKindGroup select{
         </div>
       </div>
       <div id="txBankBalancePreview" class="tx-bank-balance-preview tbp-kpi full" style="display:none"></div>
+      <div class="transaction-field full" id="slscTriggerGroup" style="display:none">
+        <button type="button" id="slscOpenBtn" class="slsc-trigger-btn">
+          <span class="ficon">📷</span>Scan Shopping Items
+        </button>
+      </div>
       <div class="field-card">
         <div class="transaction-field full">
           <label for="txTitle"><span class="ficon">✏️</span>Description *</label>
@@ -21577,6 +21584,361 @@ body.light .transaction-modal.as-page #txKindGroup select{
         </div>
   </div>
 </div>
+
+<!-- ================= Shopping List AI Scanner (feeds Add Expense) ================= -->
+<style>
+  .slsc-trigger-btn{
+    width:100%; padding:11px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:700;
+    background:linear-gradient(180deg,var(--brass),#a9822f); color:#161207; border:none; letter-spacing:.2px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .slsc-trigger-btn:active{ transform:scale(.98); }
+  .slsc-ov{
+    position:fixed; inset:0; background:rgba(6,9,15,.78); display:none; align-items:flex-end; justify-content:center;
+    z-index:4000; padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
+  }
+  .slsc-ov.show{ display:flex; }
+  .slsc-sheet{
+    width:100%; max-width:520px; max-height:92vh; overflow-y:auto; background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line); border-radius:20px 20px 0 0; padding:18px 16px 22px; color:var(--bone);
+    font-family:Arial, sans-serif;
+  }
+  .slsc-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .slsc-head h2{ font-size:16px; margin:0; }
+  .slsc-close{ background:none; border:none; color:var(--bone-dim); font-size:18px; cursor:pointer; }
+  .slsc-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .slsc-row input{ flex:1; background:var(--panel-2); border:1px solid var(--line); color:var(--bone); border-radius:10px; padding:10px 12px; font-size:13px; }
+  .slsc-row input::placeholder{ color:var(--bone-dim); }
+  .slsc-btn-sm{ background:var(--panel-2); border:1px solid var(--line); color:var(--brass); border-radius:10px; padding:0 14px; font-weight:700; cursor:pointer; font-size:16px; }
+  .slsc-frame{
+    width:100%; max-width:280px; aspect-ratio:4/3; margin:0 auto 12px; border-radius:14px; background:#0A0F18;
+    border:1px dashed var(--line); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;
+  }
+  .slsc-frame.active{ border-color:var(--sage); }
+  .slsc-line{ position:absolute; left:6%; right:6%; height:2px; background:var(--sage); box-shadow:0 0 10px var(--sage); top:10%; opacity:0; }
+  .slsc-frame.active .slsc-line{ opacity:1; animation:slscSweep 1.6s ease-in-out infinite; }
+  @keyframes slscSweep{ 0%{top:10%;} 50%{top:88%;} 100%{top:10%;} }
+  .slsc-hint{ color:var(--bone-dim); font-size:12px; text-align:center; padding:0 12px; }
+  .slsc-scan-btn{
+    width:100%; max-width:280px; display:block; margin:0 auto 6px; padding:13px; border-radius:12px; border:none; cursor:pointer;
+    background:linear-gradient(180deg,var(--brass),#a9822f); color:#161207; font-weight:700; font-size:14px;
+  }
+  .slsc-scan-btn:active{ transform:scale(.98); }
+  .slsc-note{ font-size:11px; color:var(--bone-dim); text-align:center; margin-bottom:16px; }
+  .slsc-list-head{ display:flex; justify-content:space-between; align-items:center; margin:4px 0 8px; padding:0 2px; }
+  .slsc-list-head span{ font-size:12px; color:var(--bone-dim); text-transform:uppercase; letter-spacing:.6px; }
+  .slsc-list-head .slsc-count{ color:var(--amber); }
+  #slscItems{ display:flex; flex-direction:column; gap:8px; min-height:50px; margin-bottom:14px; }
+  .slsc-empty{ text-align:center; color:var(--bone-dim); font-size:13px; padding:22px 10px; border:1px dashed var(--line-soft); border-radius:12px; }
+  .slsc-item{ display:flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--line-soft); border-radius:12px; padding:10px 12px; }
+  .slsc-item .slsc-dot{ width:8px; height:8px; border-radius:50%; background:var(--sage); flex:0 0 auto; }
+  .slsc-item .slsc-name{ flex:1; font-size:13.5px; }
+  .slsc-item .slsc-src{ font-size:10px; color:var(--bone-dim); display:block; margin-top:2px; }
+  .slsc-item .slsc-price{ font-weight:700; color:var(--brass); font-size:14px; white-space:nowrap; }
+  .slsc-item .slsc-rm{ background:none; border:none; color:var(--rust); font-size:15px; cursor:pointer; padding:0 2px; }
+  .slsc-total-row{ display:flex; justify-content:space-between; align-items:baseline; margin:6px 0 14px; padding-top:10px; border-top:1px solid var(--line-soft); }
+  .slsc-total-row .slsc-lbl{ font-size:11px; color:var(--bone-dim); text-transform:uppercase; letter-spacing:.5px; }
+  .slsc-total-row .slsc-amt{ font-size:22px; font-weight:800; color:var(--amber); }
+  .slsc-use-btn{ width:100%; padding:13px; border-radius:12px; border:none; cursor:pointer; background:linear-gradient(180deg,var(--sage),#4f7f5e); color:#0d160f; font-weight:700; font-size:14px; }
+  .slsc-use-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .slsc-use-btn:not(:disabled):active{ transform:scale(.98); }
+  .slsc-toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:var(--sage); color:#0d160f;
+    font-weight:700; font-size:13px; padding:11px 18px; border-radius:30px; opacity:0; pointer-events:none; transition:all .25s ease;
+    box-shadow:0 8px 20px rgba(0,0,0,.35); white-space:nowrap; z-index:4100;
+  }
+  .slsc-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+
+<div class="slsc-ov" id="slscOverlay" aria-hidden="true">
+  <div class="slsc-sheet">
+    <div class="slsc-head">
+      <h2>📷 Scan Shopping Items</h2>
+      <button class="slsc-close" id="slscCloseBtn" aria-label="Close">✕</button>
+    </div>
+
+    <div class="slsc-row">
+      <input type="password" id="slscApiKeyInput" placeholder="Gemini API key (saved on this device)">
+      <button class="slsc-btn-sm" id="slscApiKeySaveBtn" style="font-size:12px;">Save</button>
+    </div>
+
+    <div class="slsc-frame" id="slscFrame">
+      <video id="slscVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;display:none;"></video>
+      <canvas id="slscCanvas" style="display:none;"></canvas>
+      <div class="slsc-line"></div>
+      <div class="slsc-hint" id="slscHint">Tap Scan to turn on the camera, then point at a barcode, price tag, or any printed amount</div>
+    </div>
+    <button class="slsc-scan-btn" id="slscScanBtn">📷 Scan Item</button>
+    <div class="slsc-note">Barcodes are decoded natively; price tags, handwritten tags, and loose numbers (no ₱ needed) are read by Gemini 3.8 Flash vision.</div>
+
+    <div class="slsc-row">
+      <input type="text" id="slscManualName" placeholder="Item name (manual add)">
+      <input type="text" id="slscManualPrice" placeholder="Amount" inputmode="decimal" style="max-width:90px;">
+      <button class="slsc-btn-sm" id="slscManualAddBtn">+</button>
+    </div>
+
+    <div class="slsc-list-head">
+      <span>Scanned items</span>
+      <span class="slsc-count" id="slscItemCount">0</span>
+    </div>
+    <div id="slscItems"><div class="slsc-empty" id="slscEmptyState">No items yet — scan or add one above</div></div>
+
+    <div class="slsc-total-row">
+      <span class="slsc-lbl">Batch Total</span>
+      <span class="slsc-amt" id="slscTotalAmt">₱0.00</span>
+    </div>
+    <button class="slsc-use-btn" id="slscUseBtn" disabled>Use This List → Fill Expense</button>
+  </div>
+</div>
+<div class="slsc-toast" id="slscToast"></div>
+
+<script>
+(function(){
+  var items = [];
+  var GEMINI_MODEL = 'gemini-3.8-flash';
+  var apiKey = localStorage.getItem('dlp_gemini_api_key') || '';
+
+  var overlay, apiKeyInput, video, canvas, mediaStream = null;
+  var frame, hint, scanBtn, itemsEl, emptyState, itemCount, totalAmt, useBtn, toast;
+  var barcodeDetector = null, barcodeSupportChecked = false;
+
+  function $(id){ return document.getElementById(id); }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 1700);
+  }
+
+  function peso(n){ return '₱' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  function render(){
+    itemsEl.innerHTML = '';
+    if(items.length === 0){
+      itemsEl.appendChild(emptyState);
+      emptyState.style.display = 'block';
+    } else {
+      emptyState.style.display = 'none';
+      items.forEach(function(it, idx){
+        var row = document.createElement('div');
+        row.className = 'slsc-item';
+        row.innerHTML =
+          '<div class="slsc-dot"></div>' +
+          '<div class="slsc-name">' + it.name + '<span class="slsc-src">' + it.src + '</span></div>' +
+          '<div class="slsc-price">' + peso(it.price) + '</div>' +
+          '<button class="slsc-rm" data-idx="' + idx + '">✕</button>';
+        itemsEl.appendChild(row);
+      });
+    }
+    itemCount.textContent = items.length;
+    var total = items.reduce(function(s,it){ return s + it.price; }, 0);
+    totalAmt.textContent = peso(total);
+    useBtn.disabled = items.length === 0;
+  }
+
+  function addItem(name, price, src){
+    items.push({ name:name, price:price, src:src || 'Manual entry' });
+    render();
+  }
+
+  function stopCamera(){
+    if(mediaStream){
+      mediaStream.getTracks().forEach(function(t){ t.stop(); });
+      mediaStream = null;
+    }
+    if(video){ video.style.display = 'none'; video.srcObject = null; }
+  }
+
+  function ensureCamera(){
+    if(mediaStream) return Promise.resolve();
+    return navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function(stream){
+      mediaStream = stream;
+      video.srcObject = stream;
+      video.style.display = 'block';
+      return new Promise(function(res){ video.onloadedmetadata = res; });
+    });
+  }
+
+  function captureFrameBase64(){
+    var w = video.videoWidth || 640, h = video.videoHeight || 480;
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+  }
+
+  function getBarcodeDetector(){
+    if(barcodeSupportChecked) return Promise.resolve(barcodeDetector);
+    barcodeSupportChecked = true;
+    if(!('BarcodeDetector' in window)) return Promise.resolve(null);
+    return BarcodeDetector.getSupportedFormats().then(function(formats){
+      barcodeDetector = new BarcodeDetector({ formats: formats });
+      return barcodeDetector;
+    }).catch(function(){ return null; });
+  }
+  function tryDecodeBarcode(){
+    return getBarcodeDetector().then(function(detector){
+      if(!detector) return null;
+      return detector.detect(video).then(function(codes){
+        return (codes && codes[0]) ? { value: codes[0].rawValue, format: codes[0].format } : null;
+      }).catch(function(){ return null; });
+    });
+  }
+
+  function buildPrompt(barcode){
+    if(barcode){
+      return 'A barcode decoder has already read this item\'s barcode as "' + barcode.value +
+        '" (format: ' + barcode.format + '). Look at the photo and identify the product name from its ' +
+        'packaging/label, and find any printed price near it — a price tag, shelf label, or receipt-style ' +
+        'amount, with or without a currency symbol. Many barcodes (e.g. weighed produce/deli items) also ' +
+        'encode a price directly in the digits — if you recognize that pattern, use it. ' +
+        'Respond with ONLY a compact JSON object, no markdown, no prose: ' +
+        '{"name": "...", "price": 0.00, "source": "barcode"}. ' +
+        'If genuinely no price is visible or encoded, set "price" to null.';
+    }
+    return 'You are looking at a single photo of a grocery/retail item with NO barcode visible or decodable. ' +
+      'It may show a printed price tag, a handwritten tag, a shelf label, or just a loose number with no ' +
+      'currency symbol. Identify the item name (best guess from packaging/label text if visible, otherwise ' +
+      '"Unknown item") and the numeric price/amount shown. ' +
+      'Respond with ONLY a compact JSON object, no markdown, no prose: ' +
+      '{"name": "...", "price": 0.00, "source": "price_tag" | "handwritten" | "loose_number" | "unclear"}. ' +
+      'If you cannot find any usable price/amount, set "price" to null.';
+  }
+
+  function callGemini(base64Image, barcode){
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent';
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      body: JSON.stringify({
+        contents: [{ parts: [ { text: buildPrompt(barcode) }, { inline_data: { mime_type: 'image/jpeg', data: base64Image } } ] }],
+        generationConfig: { temperature: 0, responseMimeType: 'application/json' }
+      })
+    }).then(function(res){
+      if(!res.ok) return res.text().then(function(t){ throw new Error('Gemini error ' + res.status + ': ' + t); });
+      return res.json();
+    }).then(function(data){
+      var text = data.candidates && data.candidates[0] && data.candidates[0].content &&
+                 data.candidates[0].content.parts && data.candidates[0].content.parts[0] &&
+                 data.candidates[0].content.parts[0].text;
+      if(!text) throw new Error('No response from model');
+      return JSON.parse(text);
+    });
+  }
+
+  var scanning = false;
+  function onScanClick(){
+    if(scanning) return;
+    if(!apiKey){ showToast('Enter and save your Gemini API key first'); return; }
+    scanning = true;
+    scanBtn.disabled = true; scanBtn.style.opacity = '.6';
+
+    var barcodeFound = null;
+    ensureCamera().then(function(){
+      frame.classList.add('active');
+      hint.textContent = 'Looking for a barcode…';
+      return tryDecodeBarcode();
+    }).then(function(barcode){
+      barcodeFound = barcode;
+      hint.textContent = barcode ? 'Barcode found — reading price…' : 'No barcode — reading price tag…';
+      var img = captureFrameBase64();
+      return callGemini(img, barcode);
+    }).then(function(result){
+      if(result.price === null || result.price === undefined || isNaN(parseFloat(result.price))){
+        showToast(barcodeFound ? 'Barcode read (' + barcodeFound.value + ') but no price found nearby' : 'No readable price/amount found — try again closer');
+        return;
+      }
+      var name = result.name || 'Unknown item';
+      var srcLabel = { barcode:'Barcode ' + (barcodeFound ? barcodeFound.value : ''), price_tag:'Price tag scan',
+                        handwritten:'Handwritten tag', loose_number:'Loose amount (no ₱)', unclear:'Unclear source' }[result.source] || 'AI scan';
+      addItem(name, parseFloat(result.price), srcLabel.trim());
+      showToast('Added: ' + name);
+    }).catch(function(err){
+      console.error(err);
+      showToast('Scan failed — ' + (err.message || 'check camera/API key'));
+    }).finally(function(){
+      frame.classList.remove('active');
+      hint.textContent = 'Point camera at a barcode, price tag, or any printed amount';
+      scanBtn.disabled = false; scanBtn.style.opacity = '1';
+      scanning = false;
+    });
+  }
+
+  function openOverlay(){
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  function closeOverlay(){
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+    stopCamera();
+  }
+
+  function applyToExpenseForm(){
+    if(items.length === 0) return;
+    var total = items.reduce(function(s,it){ return s + it.price; }, 0);
+    var desc = items.map(function(it){ return it.name + ' (' + peso(it.price) + ')'; }).join(', ');
+
+    var titleEl = document.getElementById('txTitle');
+    var amountEl = document.getElementById('txAmount');
+    if(titleEl) titleEl.value = desc;
+    if(amountEl){
+      amountEl.value = total.toFixed(2);
+      // fire the app's own input handler so its formatting/preview logic runs
+      amountEl.dispatchEvent(new Event('input', { bubbles:true }));
+    }
+    if(typeof updateTxSaveButton === 'function') updateTxSaveButton();
+
+    showToast('Filled expense — ' + peso(total) + ' (' + items.length + ' items)');
+    items = [];
+    render();
+    closeOverlay();
+  }
+
+  function init(){
+    overlay = $('slscOverlay'); apiKeyInput = $('slscApiKeyInput');
+    video = $('slscVideo'); canvas = $('slscCanvas'); frame = $('slscFrame'); hint = $('slscHint');
+    scanBtn = $('slscScanBtn'); itemsEl = $('slscItems'); emptyState = $('slscEmptyState');
+    itemCount = $('slscItemCount'); totalAmt = $('slscTotalAmt'); useBtn = $('slscUseBtn'); toast = $('slscToast');
+
+    apiKeyInput.value = apiKey;
+    $('slscApiKeySaveBtn').addEventListener('click', function(){
+      apiKey = apiKeyInput.value.trim();
+      try{ localStorage.setItem('dlp_gemini_api_key', apiKey); }catch(e){}
+      showToast(apiKey ? 'API key saved' : 'API key cleared');
+    });
+
+    var openBtn = $('slscOpenBtn');
+    if(openBtn) openBtn.addEventListener('click', openOverlay);
+    $('slscCloseBtn').addEventListener('click', closeOverlay);
+    overlay.addEventListener('click', function(e){ if(e.target === overlay) closeOverlay(); });
+
+    scanBtn.addEventListener('click', onScanClick);
+
+    itemsEl.addEventListener('click', function(e){
+      var btn = e.target.closest('.slsc-rm');
+      if(!btn) return;
+      items.splice(parseInt(btn.dataset.idx, 10), 1);
+      render();
+    });
+
+    $('slscManualAddBtn').addEventListener('click', function(){
+      var nameInput = $('slscManualName'), priceInput = $('slscManualPrice');
+      var name = nameInput.value.trim();
+      var price = parseFloat((priceInput.value || '').replace(/[^\d.]/g,''));
+      if(!name || isNaN(price)){ showToast('Enter a name and amount'); return; }
+      addItem(name, price, 'Manual entry');
+      nameInput.value = ''; priceInput.value = '';
+    });
+
+    useBtn.addEventListener('click', applyToExpenseForm);
+
+    render();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 
 <div class="transaction-modal-backdrop" id="expenseCatModal" aria-hidden="true">
   <div class="transaction-modal expense-cat-modal" role="dialog" aria-modal="true" aria-labelledby="expenseCatModalTitle">
