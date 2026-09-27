@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -24,6 +25,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -49,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> fileChooserLauncher;
     private ActivityResultLauncher<Intent> saveLauncher;
     private byte[] pendingSave;
+    private ActivityResultLauncher<String> cameraPermissionLauncher;
+    private PermissionRequest pendingPermissionRequest;
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
@@ -98,6 +102,17 @@ public class MainActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         toast("Could not save file");
                     }
+                });
+
+        cameraPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(), granted -> {
+                    if (pendingPermissionRequest == null) return;
+                    if (granted) {
+                        pendingPermissionRequest.grant(pendingPermissionRequest.getResources());
+                    } else {
+                        pendingPermissionRequest.deny();
+                    }
+                    pendingPermissionRequest = null;
                 });
 
         if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
@@ -164,6 +179,24 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
                 return true;
+            }
+
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                for (String resource : request.getResources()) {
+                    if (resource.equals(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
+                        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                                android.Manifest.permission.CAMERA)
+                                == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                            request.grant(new String[]{ PermissionRequest.RESOURCE_VIDEO_CAPTURE });
+                        } else {
+                            pendingPermissionRequest = request;
+                            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA);
+                        }
+                        return;
+                    }
+                }
+                request.deny();
             }
         });
 
